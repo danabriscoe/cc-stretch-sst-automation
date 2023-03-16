@@ -1,0 +1,88 @@
+---
+title: "SST timeseries"
+author: "Dana K Briscoe"
+date: '`r Sys.Date()`'
+output: html_document
+params:
+  node: "pacioos" 
+  url: "https://pae-paha.pacioos.hawaii.edu/erddap/griddap/"
+  eov: "sst"
+  varname: "CRW_SST"
+  dataset_ID: "dhw_5km"
+  enddate: !r Sys.Date() - 1
+  startdate: !r params$enddate - 15
+  timestep: "day"
+  nc_path: "/Users/briscoedk/dbriscoe@stanford.edu - Google Drive/My Drive/ncdf/deploy_reports"
+  bbox: !r tibble::tibble(ymin=20, ymax=50,xmin=-180, xmax=-110)
+---
+
+```{r setup, include=FALSE}
+knitr::opts_chunk$set(
+    echo = FALSE,
+    eval = TRUE,
+    message = FALSE,
+    warning = FALSE,
+    dpi = 300,
+    fig.align = "center",
+    fig.height = 9
+    )
+
+# See Options: knitr::opts_chunk$get()
+```
+
+
+```{r load-libraries}
+# Load Libraries ---
+# library(RNetCDF)
+library(tidyverse)
+library(ncdf4)
+library(lubridate)
+
+```
+
+```{r source-helper-funcs}
+## Source helper functions
+source('00_automate_SST_helper_functions.R')
+```
+
+```{r set-timeout-length}
+options(timeout=120)
+```
+
+
+```{r set-dateRange}
+dates <- getDateRange(startdate = params$startdate,enddate = params$enddate, unit=params$timestep) 
+
+```
+
+```{r}
+if(params$dataset_ID == "NOAA_DHW_Lon0360"){
+    dates <- dates %>%
+    as.character() %>%
+    str_c(., 'T12:00:00Z', sep=" ")
+    
+    params$bbox <- params$bbox %>% mutate(xmin = make360(xmin), xmax = make360(xmax)) 
+}
+
+```
+
+```{r get-ncdfs}
+for (i in 1:length(dates)) {
+  tryCatch({
+    getNCDF(
+    url = params$url,
+    eov = params$eov,
+    varname = params$varname,
+    dataset_ID = params$dataset_ID, 
+    bbox = params$bbox, 
+    dt = dates[i], 
+    ncpath = params$nc_path
+  )
+  }, error = function(e){
+      message('Caught an error!')
+      print(e)
+  }
+  )
+}
+```
+
