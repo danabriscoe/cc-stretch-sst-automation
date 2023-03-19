@@ -22,7 +22,8 @@ knitr::opts_chunk$set(
     warning = FALSE,
     dpi = 300,
     fig.align = "center",
-    fig.height = 9
+    fig.height = 7,
+    fig.width = 10
     )
 
 # See Options: knitr::opts_chunk$get()
@@ -150,7 +151,7 @@ if(params$interval == 'daily'){
 
 ```{r ggplot-xy-timeseries}
 # plot 
-p_sst_ts <- plot_timeseries(data = df, unit = date, cpal = cpal, ylimits = c(6,20), ybreaks = seq(6,20, by = 2)) +
+p_sst_ts <- plot_timeseries(data = df, cpal = cpal, ylimits = c(6,20), ybreaks = seq(6,20, by = 2)) +
     # geom_hline(yintercept = params$sst_thresh, linetype = 2, colour = "black")
     NULL
 
@@ -170,6 +171,6 @@ sst_plot
 ```
 
 ```{r}
-
+print(str_c('publish date-time: ', Sys.time()))
 ```
 
