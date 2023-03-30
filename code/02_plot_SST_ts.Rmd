@@ -21,9 +21,7 @@ knitr::opts_chunk$set(
     message = FALSE,
     warning = FALSE,
     dpi = 300,
-    fig.align = "center",
-    fig.height = 7,
-    fig.width = 10
+    fig.align = "center"
     )
 
 # See Options: knitr::opts_chunk$get()
@@ -99,12 +97,12 @@ ship_route_pts <- get_shipping_route(port_start = Port_Yokohama, port_end = Port
 
 ```{r pull-xycoords-for-ts}
 # locate possible deploy lons along shipping route
-lons_idx = sapply(1:length(params$deploy_lons), function(x) {findInterval(make360(params$deploy_lons)[x], make360(ship_route_pts$lon), rightmost.closed  = TRUE)})
+lons_idx = sapply(1:length(params$deploy_lons), function(x) {findInterval(make360(params$deploy_lons)[x], floor(make360(ship_route_pts$lon)), rightmost.closed  = TRUE)})
 
 # pull coords for timeseries
 xy <- ship_route_pts %>%
     slice(lons_idx) %>%
-    mutate(across(everything(), round, 0)) %>%
+    # mutate(across(everything(), floor)) %>%
     setNames(c('x', 'y'))
 
 ```
@@ -167,8 +165,24 @@ sst_plot <- p_sst_ts +
     colour = "Longitude (°W)"
   )
 
-sst_plot
+
 ```
+
+```{r plot-map}
+
+fig_top <- get_npac_map(xy, cpal) %>% addScaleBar(position = "bottomleft", options = scaleBarOptions())
+fig_bottom <- sst_plot
+
+```
+
+```{r plot-ts, fig.height= 2, fig.width = 3, fig.align="center"}
+fig_top 
+
+```
+```{r}
+fig_bottom
+```
+
 
 ```{r}
 print(str_c('publish date-time: ', Sys.time()))
