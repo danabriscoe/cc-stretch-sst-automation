@@ -174,9 +174,9 @@ get_npac_map <- function(xy, lon_type = '360', cpal){
                      lat = xy$y[ceiling(xy$x) == 220], color = cpal[3], 
                      radius = 5,
                      label = labels[4]) 
+
   return(map)
 }
-
 
 
 # plot timeseries

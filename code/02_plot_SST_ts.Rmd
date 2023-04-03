@@ -156,10 +156,10 @@ if(params$interval == 'daily'){
 ```{r ggplot-xy-timeseries}
 # plot 
 p_sst_ts <- plot_timeseries(data = df %>% 
-                              mutate(ID = str_c(abs(ceiling(lon)), '°W')), 
+                              mutate(ID = str_c(abs(ceiling(lon)), ' W')), 
                             cpal = cpal, ylimits = c(6,20), ybreaks = seq(6,20, by = 2)) +
     # geom_hline(yintercept = params$sst_thresh, linetype = 2, colour = "black")
-  scale_colour_manual(values=cpal, name = "Longitude (°W)") +
+  scale_colour_manual(values=cpal, name = "Longitude ( W)") +
   labs(x="Date", y="Sea surface temperature (°C)") +
   # theme(legend.direction="horizontal",legend.position="top", legend.box = "vertical")+
     NULL
@@ -181,7 +181,7 @@ longterm_df <- df %>%
   rename("value" = "longterm_avg") 
 
 longterm_df_formatted <- longterm_df %>%
-mutate(ID = str_c(abs(lon), '°W'))
+mutate(ID = str_c(abs(lon), ' W'))
 
 ## plot
 p_longterm_sst_ts <-  p_sst_ts + 
@@ -219,7 +219,7 @@ fig_bottom <- sst_plot
 fig_top 
 
 ```
-```{r, fig.height= 8}
+```{r, fig.height= 10}
 fig_bottom
 ```
 
