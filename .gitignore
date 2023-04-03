@@ -37,3 +37,9 @@ vignettes/*.pdf
 
 # R Environment Variables
 .Renviron
+
+# manual additions
+/data
+*.rds
+*.rdata
+*.nc
