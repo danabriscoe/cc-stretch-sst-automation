@@ -131,8 +131,12 @@ make360 <- function(lon){
 library(leaflet)
 
 
-get_npac_map <- function(xy, cpal){
-  
+get_npac_map <- function(xy, lon_type = '360', cpal){
+  if(lon_type=='360'){
+    xy <- xy %>% mutate(x = make360(x))
+    ship_route_pts <- ship_route_pts |> mutate(lon = make360(lon))
+  }
+    
   # get labels
   labels <- sprintf(
     "<strong>Lat/Long</strong><br/>%s°N, %g°W",
@@ -141,7 +145,9 @@ get_npac_map <- function(xy, cpal){
     lapply(htmltools::HTML)
   
   # leaflet map
-  ship_pts <- ship_route_pts %>% slice(., 1:(n() - 2)) # trim shipping great circle route end pts
+  ship_pts <- ship_route_pts %>% 
+    slice(., 1:(n() - 2)) # trim shipping great circle route end pts
+    
   map <- ship_pts |>
     leaflet() |>
     # fitBounds(120, 15, 250, 60) %>%
@@ -150,22 +156,22 @@ get_npac_map <- function(xy, cpal){
     
     addCircleMarkers(lng = ship_pts$lon, lat = ship_pts$lat, color = 'azure4',radius = 2, weight=0.5) |>
 
-    addCircleMarkers(lng = xy$x[floor(xy$x) == 200], 
-                     lat = xy$y[floor(xy$x) == 200], color = cpal[1],
+    addCircleMarkers(lng = xy$x[ceiling(xy$x) == 200], 
+                     lat = xy$y[ceiling(xy$x) == 200], color = cpal[1],
                      radius = 5, 
                      label = labels[1]
                      ) |>
-    addCircleMarkers(lng = xy$x[floor(xy$x) == 210], 
-                     lat = xy$y[floor(xy$x) == 210], color = cpal[2],
+    addCircleMarkers(lng = xy$x[ceiling(xy$x) == 210], 
+                     lat = xy$y[ceiling(xy$x) == 210], color = cpal[2],
                      radius = 5,
                      label = labels[2]) |>
-    addCircleMarkers(lng = xy$x[floor(xy$x) == 215], 
-                     lat = xy$y[floor(xy$x) == 215], color = cpal[4],
+    addCircleMarkers(lng = xy$x[ceiling(xy$x) == 215], 
+                     lat = xy$y[ceiling(xy$x) == 215], color = cpal[4],
                      radius = 5,
                      label = labels[3]
                       ) |>
-    addCircleMarkers(lng = xy$x[floor(xy$x) == 220], 
-                     lat = xy$y[floor(xy$x) == 220], color = cpal[3], 
+    addCircleMarkers(lng = xy$x[ceiling(xy$x) == 220], 
+                     lat = xy$y[ceiling(xy$x) == 220], color = cpal[3], 
                      radius = 5,
                      label = labels[4]) 
   return(map)

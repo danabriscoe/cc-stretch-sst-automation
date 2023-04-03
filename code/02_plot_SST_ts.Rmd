@@ -1,7 +1,8 @@
 ---
-title: "DRAFT SST Report"
-author: "Dana K Briscoe"
-date: '`r Sys.Date()`'
+title: "DRAFT Sea Surface Temperature (SST) Report"
+subtitle: "STRETCH Project"
+author: "Author: Dana K Briscoe"
+date: 'Report Date: `r Sys.Date()`'
 output: html_document
 params:
   eov: "sst"
@@ -11,6 +12,7 @@ params:
   sst_thresh: !r c(17)
   enddate: !r Sys.Date() - 1
   startdate: !r params$enddate - 15
+  add_clim: TRUE
   nc_path: "/Users/briscoedk/dbriscoe@stanford.edu - Google Drive/My Drive/ncdf/deploy_reports"
 ---
 
@@ -97,15 +99,16 @@ ship_route_pts <- get_shipping_route(port_start = Port_Yokohama, port_end = Port
 
 ```{r pull-xycoords-for-ts}
 # locate possible deploy lons along shipping route
-lons_idx = sapply(1:length(params$deploy_lons), function(x) {findInterval(make360(params$deploy_lons)[x], floor(make360(ship_route_pts$lon)), rightmost.closed  = TRUE)})
+lons_idx = sapply(1:length(params$deploy_lons), function(x) {findInterval(make360(params$deploy_lons)[x], ceiling(make360(ship_route_pts$lon)), rightmost.closed  = TRUE)})
 
 # pull coords for timeseries
 xy <- ship_route_pts %>%
     slice(lons_idx) %>%
-    # mutate(across(everything(), floor)) %>%
+    # mutate(across(everything(), ceiling)) %>%   ## note: you'd think you'd use floor, but it's neg, so use ceiling to round down
     setNames(c('x', 'y'))
 
 ```
+
 
 ```{r set-cpal}
 # based on specific lons & length of params$deploy_lons
@@ -128,20 +131,23 @@ if (length(params$deploy_lons) == 4 & params$deploy_lons[1] == "-160") {
 
 ```{r extract-xy-from-rasters}
 
-xtract_df_long <- get_timeseries(rasIn = ras, pts2extract = xy, subset_dt = getZ(ras))
+xtract_df_long <- get_timeseries(rasIn = ras, pts2extract = xy, subset_dt = getZ(ras)) %>%
+  mutate(lon = ceiling(lon))
 
 ```
 
 ```{r set-timeseries-dt-interval}
 if(params$interval == 'daily'){
-    df <- xtract_df_long
+    df <- xtract_df_long %>% 
+          mutate(ID = str_c(abs(lon), '°W')) 
+    
 } else if(params$interval == 'weekly'){
     
     df <- xtract_df_long %>%
         mutate(end_of_week = ceiling_date(date, "week") %>% as.Date(.)) %>%
         group_by(end_of_week, ID, lon, lat) %>%
         summarize(value = mean(value, na.rm = TRUE), .groups = "drop") %>%
-        rename('date' = 'end_of_week') 
+        rename('date' = 'end_of_week')
 }
 
 ```
@@ -149,18 +155,52 @@ if(params$interval == 'daily'){
 
 ```{r ggplot-xy-timeseries}
 # plot 
-p_sst_ts <- plot_timeseries(data = df, cpal = cpal, ylimits = c(6,20), ybreaks = seq(6,20, by = 2)) +
+p_sst_ts <- plot_timeseries(data = df %>% 
+                              mutate(ID = str_c(abs(ceiling(lon)), '°W')), 
+                            cpal = cpal, ylimits = c(6,20), ybreaks = seq(6,20, by = 2)) +
     # geom_hline(yintercept = params$sst_thresh, linetype = 2, colour = "black")
+  scale_colour_manual(values=cpal, name = "Longitude (°W)") +
+  labs(x="Date", y="Sea surface temperature (°C)") +
+  # theme(legend.direction="horizontal",legend.position="top", legend.box = "vertical")+
     NULL
 
 ```
 
+```{r add-clims, eval=params$add_clim}
+# load clim rds
+# longterm_sst_mday_df <- readRDS(file='../data/longterm_sst_mday_df.rds')
+longterm_avgs <- readRDS(file='../data/longterm_avgs_sst_mday.rds')
+# source('add_clims.R')
+
+longterm_df <- df %>%
+  select(c("ID", "lon", "lat", "date")) %>%
+  mutate(month = month(date),
+         lon = ceiling(lon),
+         lonID = str_c(abs(lon), '°W')) %>%
+  left_join(., longterm_avgs, by =c('ID', 'month')) %>%
+  rename("value" = "longterm_avg") 
+
+longterm_df_formatted <- longterm_df %>%
+mutate(ID = str_c(abs(lon), '°W'))
+
+## plot
+p_longterm_sst_ts <-  p_sst_ts + 
+  geom_line(data = longterm_df_formatted, aes(group = ID, color = factor(lon)), linewidth = 1, alpha = 0.5) + 
+  scale_colour_manual(values=cpal, name = "Longitude (°W)") +
+  labs(x="Date", y="Sea surface temperature (°C)") +
+  # theme(legend.direction="horizontal",legend.position="top", legend.box = "vertical")+
+  theme(legend.position = "none") +
+  facet_wrap(~ID, ncol=1)
+
+```
+
+
 ```{r}
-sst_plot <- p_sst_ts +
+sst_plot <- p_longterm_sst_ts +
   labs(
-    title = str_c("Average", str_to_title(params$interval), str_to_upper(params$eov), "along shipping route", sep = " "),
-    subtitle = str_c(str_to_upper(params$eov), "colors correspond to color locations on map", sep = " "),
-    caption = "Source: NOAA Coral Reef Watch, 5-km Daily SST",
+    title = str_c("\nAverage", str_to_title(params$interval), str_to_upper(params$eov), "along shipping route \n", sep = " "),
+    subtitle = str_c(str_to_upper(params$eov), "colors correspond to color locations on map for near real-time SST (dotted-line) \nand long-term climatology (solid line)", sep = " "),
+    caption = "Source:\nNOAA Coral Reef Watch, 5-km Daily SST (weekly averages) and Monthly SST (climatologies)",
     x = "Time", y = str_c(str_to_upper(params$eov), " (", params$eov_unit, ")\n", sep = ""),
     colour = "Longitude (°W)"
   )
@@ -170,7 +210,7 @@ sst_plot <- p_sst_ts +
 
 ```{r plot-map}
 
-fig_top <- get_npac_map(xy, cpal) %>% addScaleBar(position = "bottomleft", options = scaleBarOptions())
+fig_top <- get_npac_map(xy, lon_type='360', cpal) %>% addScaleBar(position = "bottomleft", options = scaleBarOptions())
 fig_bottom <- sst_plot
 
 ```
@@ -179,7 +219,7 @@ fig_bottom <- sst_plot
 fig_top 
 
 ```
-```{r}
+```{r, fig.height= 8}
 fig_bottom
 ```
 
