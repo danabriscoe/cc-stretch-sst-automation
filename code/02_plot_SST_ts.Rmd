@@ -199,7 +199,7 @@ p_longterm_sst_ts <-  p_sst_ts +
 sst_plot <- p_longterm_sst_ts +
   labs(
     title = str_c("\nAverage", str_to_title(params$interval), str_to_upper(params$eov), "along shipping route \n", sep = " "),
-    subtitle = str_c(str_to_upper(params$eov), "colors correspond to color locations on map for near real-time SST (dotted-line) \nand long-term climatology (solid line)", sep = " "),
+    subtitle = str_c(str_to_upper(params$eov), "colors correspond to color locations on map for near real-time SST (darker dotted-line) \nand long-term climatology (lighter solid line)", sep = " "),
     caption = "Source:\nNOAA Coral Reef Watch, 5-km Daily SST (weekly averages) and Monthly SST (climatologies)",
     x = "Time", y = str_c(str_to_upper(params$eov), " (", params$eov_unit, ")\n", sep = ""),
     colour = "Longitude (°W)"

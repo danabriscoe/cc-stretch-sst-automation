@@ -6,13 +6,16 @@ library(sf)
 library(khroma)
 library(plotly)
 
+## Source helper functions
+source('code/00_automate_SST_helper_functions.R')
 
 ## Load SST brick ----
 all_rasters <- readRDS(file = '~/github/cc-stretch-exploratory/data/interim/sst_NOAA_DHW_monthly_Lon0360_rasters_Jan1997_Dec2021.rds') 
 
 dates = fdates    # grab only dates from daily rasters
 # or get all between apr-jul
-dates <- seq(ymd('2023-02-01'),ymd('2023-06-30'), by = '1 week')
+dates <- seq(ymd('2023-01-01'),ymd('2023-12-31'), by = '1 month')
+
 mdates <- lubridate::month(dates) %>% unique() #%>% month.abb[.] #%>% enframe() %>% transmute("mon_abb" = value)
 
 
@@ -23,9 +26,9 @@ idx <- getZ(all_rasters) %>%
   relocate(month, .after = id) %>%
   filter(month %in% mdates)
 
-
-# ras_month <- subset(all_rasters, grep(mdates$mon_abb, names(all_rasters)))
 ras_month = subset(all_rasters, idx$id)
+
+# fyi, need to set 'xy'
 
 xtract_df_long_monthly <- get_timeseries(rasIn = ras_month, pts2extract = xy, subset_dt = getZ(ras_month))
 
@@ -66,3 +69,36 @@ saveRDS(longterm_avgs_sst_mday, file='./data/longterm_avgs_sst_mday.rds')
 #   # theme(legend.direction="horizontal",legend.position="top", legend.box = "vertical")+
 #   theme(legend.position = "none") +
 #   facet_wrap(~ID, ncol=1)
+
+
+## plot annual clims
+p_monthly_clims <- 
+  df %>%
+  select(c("ID", "lon", "lat", "date")) %>%
+  mutate(month = month(date)) %>%
+         # lon = case_when(
+         #   ID == 1  ~ 160,
+         #   ID == 2  ~ 150,
+         #   ID == 3  ~ 145,
+         #   ID == 4  ~ 140,
+         #   TRUE ~ ID)) %>%
+  full_join(., longterm_avgs, by =c('ID', 'month')) %>%
+  mutate(lon = case_when(
+    ID == 1  ~ 160,
+    ID == 2  ~ 150,
+    ID == 3  ~ 145,
+    ID == 4  ~ 140,
+    TRUE ~ lon)) %>%
+  mutate(lonID = str_c(abs(lon), '°W')) %>%
+  rename("value" = "longterm_avg") %>%
+
+ggplot(data = ., aes(month, value, group = ID)) +
+    geom_line(aes(group = ID, color = factor(lon)), linewidth = 1, alpha = 0.5) + 
+    scale_colour_manual(values=rev(cpal), name = "Longitude (°W)") +
+  scale_x_continuous(limits=c(1,12), breaks=seq(1,12,1)) +
+  scale_y_continuous(limits=c(8,22), breaks=seq(8,22,2)) +
+  theme_minimal() +
+  theme(plot.caption = element_text(hjust=0)) +
+    labs(title = 'Monthly SST Climatologies Along Shipping Route', x="Month", y="Sea surface temperature (°C)",
+         caption = "Source:\nNOAA Coral Reef Watch, 5-km Monthly SST (1997-2022)") 
+  
