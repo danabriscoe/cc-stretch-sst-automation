@@ -1,6 +1,6 @@
 ---
 title: "DRAFT Sea Surface Temperature (SST) Report"
-subtitle: "STRETCH Project"
+subtitle: "Project: STRETCH"
 author: "Author: Dana K Briscoe"
 date: 'Report Date: `r Sys.Date()`'
 output: html_document
