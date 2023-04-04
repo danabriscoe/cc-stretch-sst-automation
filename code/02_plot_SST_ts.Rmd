@@ -240,7 +240,7 @@ fig_top
 
 <br>
 
-### **Figure 2) Average weekly SST.** <span style="font-size: 16pt"> SST colors correspond to color locations on map for near real-time SST <br> &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;(darker dotted-line) and long-term climatology (lighter solid line)
+### **Figure 2) Average weekly SST.** <span style="font-size: 16pt"> SST colors correspond to color locations on map for near real-time SST (darker dotted-line) and long-term climatology (lighter solid line)
 </span>
 
 ```{r, fig.height= 10}
