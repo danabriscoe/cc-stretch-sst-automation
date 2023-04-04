@@ -166,12 +166,12 @@ get_npac_map <- function(xy, lon_type = '360', cpal){
                      radius = 5,
                      label = labels[2]) |>
     addCircleMarkers(lng = xy$x[ceiling(xy$x) == 215], 
-                     lat = xy$y[ceiling(xy$x) == 215], color = cpal[4],
+                     lat = xy$y[ceiling(xy$x) == 215], color = cpal[3],
                      radius = 5,
                      label = labels[3]
                       ) |>
     addCircleMarkers(lng = xy$x[ceiling(xy$x) == 220], 
-                     lat = xy$y[ceiling(xy$x) == 220], color = cpal[3], 
+                     lat = xy$y[ceiling(xy$x) == 220], color = cpal[4], 
                      radius = 5,
                      label = labels[4]) 
 
