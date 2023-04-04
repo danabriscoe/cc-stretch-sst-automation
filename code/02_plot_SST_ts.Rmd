@@ -1,9 +1,11 @@
 ---
-title: "DRAFT Sea Surface Temperature (SST) Report"
+title: "Sea Surface Temperature (SST) Report"
 subtitle: "Project: STRETCH"
 author: "Author: Dana K Briscoe"
 date: 'Report Date: `r Sys.Date()`'
-output: html_document
+output: 
+  html_document:
+    style: "style.css"
 params:
   eov: "sst"
   eov_unit: "°C"
@@ -15,6 +17,15 @@ params:
   add_clim: TRUE
   nc_path: "/Users/briscoedk/dbriscoe@stanford.edu - Google Drive/My Drive/ncdf/deploy_reports"
 ---
+
+<style>
+.main-container {
+    max-width: 1180px;
+    margin-left: 10;
+    margin-right: 10;
+}
+</style>
+
 
 ```{r setup, include=FALSE}
 knitr::opts_chunk$set(
@@ -196,10 +207,13 @@ p_longterm_sst_ts <-  p_sst_ts +
 
 
 ```{r}
+title = '' #str_c("\nAverage", str_to_title(params$interval), str_to_upper(params$eov), "along shipping route \n", sep = " ")
+subtitle = '' #str_c(str_to_upper(params$eov), "colors correspond to color locations on map for near real-time SST (darker dotted-line) \nand long-term climatology (lighter solid line)", sep = " ")
+  
 sst_plot <- p_longterm_sst_ts +
   labs(
-    title = str_c("\nAverage", str_to_title(params$interval), str_to_upper(params$eov), "along shipping route \n", sep = " "),
-    subtitle = str_c(str_to_upper(params$eov), "colors correspond to color locations on map for near real-time SST (darker dotted-line) \nand long-term climatology (lighter solid line)", sep = " "),
+    title = title,
+    subtitle = subtitle,
     caption = "Source:\nNOAA Coral Reef Watch, 5-km Daily SST (weekly averages) and Monthly SST (climatologies)",
     x = "Time", y = str_c(str_to_upper(params$eov), " (", params$eov_unit, ")\n", sep = ""),
     colour = "Longitude (°W)"
@@ -215,10 +229,20 @@ fig_bottom <- sst_plot
 
 ```
 
-```{r plot-ts, fig.height= 2, fig.width = 3, fig.align="center"}
+<br>
+
+### **Figure 1) Map.** <span style="font-size: 16pt">Possible shipping route (gray) and potential turtle deployment locations (color)</span>
+
+```{r plot-ts, fig.height= 2, fig.width = 4, fig.align="center"}
 fig_top 
 
 ```
+
+<br>
+
+### **Figure 2) Average weekly SST.** <span style="font-size: 16pt"> SST colors correspond to color locations on map for near real-time SST <br> &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;(darker dotted-line) and long-term climatology (lighter solid line)
+</span>
+
 ```{r, fig.height= 10}
 fig_bottom
 ```
