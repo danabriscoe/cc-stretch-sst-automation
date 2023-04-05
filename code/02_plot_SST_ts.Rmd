@@ -195,10 +195,7 @@ longterm_df_formatted <- longterm_df %>%
   mutate(ID = str_c(abs(lon), ' W')) %>%
   mutate(ID = as.factor(ID))
 
-longterm_df_formatted$facet_ID <- factor(longterm_df_formatted$ID,      # Reordering group factor levels
-                         levels = c("150 W", "160 W", "145 W", "140 W"))
 
-df$facet = factor(df$Case, levels = c("L", "B", "R", "BC"))
 
 ## plot
 p_longterm_sst_ts <-  p_sst_ts + 
@@ -246,7 +243,7 @@ fig_top
 
 <br>
 
-### **Figure 2) Average weekly SST.** <span style="font-size: 16pt"> SST colors correspond to color locations on map for near real-time SST (darker dotted-line) and long-term climatology (lighter solid line)
+### **Figure 2) Average weekly SST.** <span style="font-size: 16pt"> SST colors correspond to color locations on map for approximate weekly SST (darker dotted-line) and long-term climatology (lighter solid line)
 </span>
 
 ```{r, fig.height= 10}
