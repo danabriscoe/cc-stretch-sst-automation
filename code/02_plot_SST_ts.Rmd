@@ -192,7 +192,13 @@ longterm_df <- df %>%
   rename("value" = "longterm_avg") 
 
 longterm_df_formatted <- longterm_df %>%
-mutate(ID = str_c(abs(lon), ' W'))
+  mutate(ID = str_c(abs(lon), ' W')) %>%
+  mutate(ID = as.factor(ID))
+
+longterm_df_formatted$facet_ID <- factor(longterm_df_formatted$ID,      # Reordering group factor levels
+                         levels = c("150 W", "160 W", "145 W", "140 W"))
+
+df$facet = factor(df$Case, levels = c("L", "B", "R", "BC"))
 
 ## plot
 p_longterm_sst_ts <-  p_sst_ts + 
@@ -231,7 +237,7 @@ fig_bottom <- sst_plot
 
 <br>
 
-### **Figure 1) Map.** <span style="font-size: 16pt">Possible shipping route (gray) and potential turtle deployment locations (color)</span>
+### **Figure 1) Map.** <span style="font-size: 16pt">Estimated shipping route (gray) and potential turtle deployment locations (color)</span>
 
 ```{r plot-ts, fig.height= 2, fig.width = 4, fig.align="center"}
 fig_top 
