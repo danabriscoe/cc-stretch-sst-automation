@@ -169,7 +169,12 @@ if(params$interval == 'daily'){
 p_sst_ts <- plot_timeseries(data = df %>% 
                               mutate(ID = str_c(abs(ceiling(lon)), ' W')), 
                             cpal = cpal, ylimits = c(6,20), ybreaks = seq(6,20, by = 2)) +
-    # geom_hline(yintercept = params$sst_thresh, linetype = 2, colour = "black")
+    # 
+    geom_rect(aes(ymin = 16.9, ymax = 17.1,
+                            xmin = date[1], xmax = date[length(date)]), fill='azure4',
+            alpha = 0.15, inherit.aes = FALSE) +
+
+    # geom_hline(yintercept = params$sst_thresh, linetype = 2, colour = "azure4") +
   scale_colour_manual(values=cpal, name = "Longitude ( W)") +
   labs(x="Date", y="Sea surface temperature (°C)") +
   # theme(legend.direction="horizontal",legend.position="top", legend.box = "vertical")+
@@ -199,12 +204,15 @@ longterm_df_formatted <- longterm_df %>%
 
 ## plot
 p_longterm_sst_ts <-  p_sst_ts + 
+  # geom_hline(yintercept = 17, linetype = 2, colour = "black") +
   geom_line(data = longterm_df_formatted, aes(group = ID, color = factor(lon)), linewidth = 1, alpha = 0.5) + 
   scale_colour_manual(values=cpal, name = "Longitude (°W)") +
   labs(x="Date", y="Sea surface temperature (°C)") +
   # theme(legend.direction="horizontal",legend.position="top", legend.box = "vertical")+
   theme(legend.position = "none") +
   facet_wrap(~ID, ncol=1)
+
+
 
 ```
 
@@ -217,8 +225,8 @@ sst_plot <- p_longterm_sst_ts +
   labs(
     title = title,
     subtitle = subtitle,
-    caption = "Source:\nNOAA Coral Reef Watch, 5-km Daily SST (weekly averages) and Monthly SST (climatologies)",
-    x = "Time", y = str_c(str_to_upper(params$eov), " (", params$eov_unit, ")\n", sep = ""),
+    caption = "Source:\nNOAA Coral Reef Watch, 5-km Daily SST (weekly averages) and Monthly SST (long-term averages)",
+    x = "Date", y = str_c(str_to_upper(params$eov), " (", params$eov_unit, ")\n", sep = ""),
     colour = "Longitude (°W)"
   )
 
@@ -229,12 +237,13 @@ sst_plot <- p_longterm_sst_ts +
 
 fig_top <- get_npac_map(xy, lon_type='360', cpal) %>% addScaleBar(position = "bottomleft", options = scaleBarOptions())
 fig_bottom <- sst_plot
+# fig_bottom <- ggplotly(sst_plot, tooltip = c("text"))
 
 ```
 
 <br>
 
-### **Figure 1) Map.** <span style="font-size: 16pt">Estimated shipping route (gray) and potential turtle deployment locations (color)</span>
+### **Figure 1) Map.** <span style="font-size: 16pt">Estimated shipping route (gray) and potential turtle deployment locations (colors) for June 2023.</span>
 
 ```{r plot-ts, fig.height= 2, fig.width = 4, fig.align="center"}
 fig_top 
@@ -243,7 +252,10 @@ fig_top
 
 <br>
 
-### **Figure 2) Average weekly SST.** <span style="font-size: 16pt"> SST colors correspond to color locations on map for approximate weekly SST (darker dotted-line) and long-term climatology (lighter solid line)
+### **Figure 2) Average SST time series.** 
+<br>
+<span style="font-size: 16pt"> SST colors correspond to color locations on the map for the most recent weekly SST averages in 2023 (darker dotted-line) and long-term SST averages between 1997-2022 (lighter solid line). 
+The gray horizontal line at 17°C is a reference for optimal temperatures during turtle release.
 </span>
 
 ```{r, fig.height= 10}
