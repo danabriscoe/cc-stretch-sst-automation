@@ -264,6 +264,6 @@ fig_bottom
 
 
 ```{r}
-print(str_c('publish date-time: ', Sys.time()))
+print(str_c('publish date-time: ', Sys.time(), ' ', Sys.timezone()))
 ```
 
