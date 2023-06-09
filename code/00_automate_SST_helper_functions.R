@@ -151,7 +151,7 @@ get_npac_map <- function(xy, lon_type = '360', cpal, col_borders=TRUE){
   map <- ship_pts |>
     leaflet() |>
     # fitBounds(120, 15, 250, 60) %>%
-    setView(210, 30, zoom = 4) |>
+    setView(210, 30, zoom = 3) |>
     addTiles() |>
     
     addCircleMarkers(lng = ship_pts$lon, lat = ship_pts$lat, color = 'azure4',radius = 2, weight=0.5) |>
