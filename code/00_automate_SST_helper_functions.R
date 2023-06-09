@@ -131,7 +131,7 @@ make360 <- function(lon){
 library(leaflet)
 
 
-get_npac_map <- function(xy, lon_type = '360', cpal){
+get_npac_map <- function(xy, lon_type = '360', cpal, col_borders=TRUE){
   if(lon_type=='360'){
     xy <- xy %>% mutate(x = make360(x))
     ship_route_pts <- ship_route_pts |> mutate(lon = make360(lon))
@@ -157,22 +157,34 @@ get_npac_map <- function(xy, lon_type = '360', cpal){
     addCircleMarkers(lng = ship_pts$lon, lat = ship_pts$lat, color = 'azure4',radius = 2, weight=0.5) |>
 
     addCircleMarkers(lng = xy$x[ceiling(xy$x) == 200], 
-                     lat = xy$y[ceiling(xy$x) == 200], color = cpal[1],
-                     radius = 5, 
+                     lat = xy$y[ceiling(xy$x) == 200], #color = cpal[1],
+                     color = ifelse(col_borders, "black", cpal[1]), weight = 2,
+                     fillColor = cpal[1],
+                     stroke = TRUE,
+                     radius = 6, 
                      label = labels[1]
                      ) |>
     addCircleMarkers(lng = xy$x[ceiling(xy$x) == 210], 
-                     lat = xy$y[ceiling(xy$x) == 210], color = cpal[2],
-                     radius = 5,
+                     lat = xy$y[ceiling(xy$x) == 210], #color = cpal[2],
+                     color = ifelse(col_borders, "black", cpal[2]), weight = 2,
+                     fillColor = cpal[2],
+                     stroke = TRUE,
+                     radius = 6, 
                      label = labels[2]) |>
     addCircleMarkers(lng = xy$x[ceiling(xy$x) == 215], 
-                     lat = xy$y[ceiling(xy$x) == 215], color = cpal[3],
-                     radius = 5,
+                     lat = xy$y[ceiling(xy$x) == 215], #color = cpal[3],
+                     color = ifelse(col_borders, "black", cpal[3]), weight = 2,
+                     fillColor = cpal[3],
+                     stroke = TRUE,
+                     radius = 6, 
                      label = labels[3]
                       ) |>
     addCircleMarkers(lng = xy$x[ceiling(xy$x) == 220], 
-                     lat = xy$y[ceiling(xy$x) == 220], color = cpal[4], 
-                     radius = 5,
+                     lat = xy$y[ceiling(xy$x) == 220], #color = cpal[4], 
+                     color = ifelse(col_borders, "black", cpal[4]), weight = 2,
+                     fillColor = cpal[4],
+                     stroke = TRUE,
+                     radius = 6, 
                      label = labels[4]) 
 
   return(map)
@@ -182,12 +194,7 @@ get_npac_map <- function(xy, lon_type = '360', cpal){
 # plot timeseries
 plot_timeseries <- function(data, #unit='day',
                             cpal, ylimits, ybreaks, sst_thresh){
-  # x <- as.name(unit)
-  # unit_expr <-  enquo(x)
-  #
-  # g <- ggplot(data = data, aes( (!!unit_expr), value, group = ID, text = str_c("Lon: ", make180(lon), ifelse(make180(lon) > 0, "°E \nSST", "°W \nSST: "), round(value,1),"°C"))) +
-  #     geom_point(aes(x=(!!unit_expr), y=value, color = factor(make180(lon))), size = 3) +
-  #     geom_line(aes(group=ID, color = factor(make180(lon))), linewidth = 1) +
+
   g <- ggplot(data = data, aes(date, value, group = ID, text = str_c("Lon: ", make180(lon), ifelse(make180(lon) > 0, "°E \nSST", "°W \nSST: "), round(value,1),"°C"))) +
     geom_point(aes(x=date, y=value, color = factor(make180(lon))), size = 3) +
     geom_line(aes(group=ID, color = factor(make180(lon))), linewidth = 1) +
