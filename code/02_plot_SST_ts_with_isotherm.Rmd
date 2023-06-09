@@ -260,7 +260,7 @@ df_17C <- data.frame(group = c("17"),
                  lat = coords_17C$coords.x2,
                  lng = coords_17C$coords.x1,
                  lng360 = make360(coords_17C$coords.x1)) %>%
-      filter(lng360 > 180.5)
+      filter(lng360 > 181.0)
 
 ```
 
