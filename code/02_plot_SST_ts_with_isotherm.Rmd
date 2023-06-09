@@ -179,7 +179,7 @@ p_sst_ts <- plot_timeseries(data = df %>%
                             cpal = cpal, ylimits = c(6,20), ybreaks = seq(6,20, by = 2)) +
     # 
     geom_rect(aes(ymin = 16.9, ymax = 17.1,
-                            xmin = date[1], xmax = date[length(date)]), fill='azure4',
+                            xmin = date[1], xmax = date[length(date)]), fill='gray10',
             alpha = 0.15, inherit.aes = FALSE) +
 
     # geom_hline(yintercept = params$sst_thresh, linetype = 2, colour = "azure4") +
@@ -299,7 +299,7 @@ fig_bottom <- sst_plot
 ### **Figure 1) Map.** <span style="font-size: 16pt">Estimated shipping route (gray) and potential turtle deployment locations (colors) for June 2023.</span>
 
 ```{r, eval=params$add_sst_map}
-print(str_c('Daily SST map for ', getZ(enddate_ras), '. 17C isotherm shown in black.'))
+print(str_c('Daily SST map for ', getZ(enddate_ras), '. 17°C isotherm shown in black.'))
 ```
 
 
@@ -313,7 +313,7 @@ map
 ### **Figure 2) Average SST time series.** 
 <br>
 <span style="font-size: 16pt"> SST colors correspond to color locations on the map for the most recent weekly SST averages in 2023 (darker dotted-line) and long-term SST averages between 1997-2022 (lighter solid line). 
-The gray horizontal line at 17°C is a reference for optimal temperatures during turtle release.
+The black horizontal line at 17°C is a reference for optimal temperatures during turtle release.
 </span>
 
 ```{r, fig.height= 10}
