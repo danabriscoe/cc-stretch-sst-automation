@@ -278,11 +278,11 @@ if(params$add_sst_map){
               pal = pal_rev,
               values = values(enddate_ras),
               position = "topright",
-              title = "SST (°C)",
+              title = "SST (ºC)",
               labFormat = labelFormat(transform = function(x) sort(x, decreasing = FALSE))) 
   #Add the contour lines as lines on the map
   map <- addCircleMarkers(map, data = df_17C, lng = ~lng360, lat = ~lat, 
-                          label = "17°C SST isotherm",
+                          label = "17\u00B0C SST isotherm",
                           group = ~group, color = "gray10", radius = 1.5)
 
 } else {
