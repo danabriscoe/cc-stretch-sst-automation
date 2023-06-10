@@ -284,6 +284,14 @@ if(params$add_sst_map){
   map <- addCircleMarkers(map, data = df_17C, lng = ~lng360, lat = ~lat, 
                           label = "17 deg C SST isotherm",
                           group = ~group, color = "gray10", radius = 1.5)
+  
+  map <- map %>%
+    addRectangles(
+      lng1 = 225, lat1 = 25,
+      lng2 = 243, lat2 = 35, stroke = TRUE, weight = 3,
+      color = "white", label = "Thermal Corridor Area",
+      fillColor = "transparent"
+    )
 
 } else {
 map <- fig_top
@@ -297,7 +305,7 @@ fig_bottom <- sst_plot
 
 <br>
 
-### **Figure 1) Map.** <span style="font-size: 16pt">Estimated shipping route (gray dots) and potential turtle deployment locations (colors) for June 2023.</span>
+### **Figure 1) Map.** <span style="font-size: 16pt">Estimated shipping route (gray dots) and potential turtle deployment locations (colors) for June 2023. Thermal Corridor area outlined in white. </span>
 
 ```{r, eval=params$add_sst_map}
 print(str_c('Daily 5km SST map for ', getZ(enddate_ras), '. Black lines represent the 17 degree C isotherm.'))
