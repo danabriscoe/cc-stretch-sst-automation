@@ -208,7 +208,8 @@ plot_timeseries <- function(data, #unit='day',
     
     theme_minimal() +
     theme(legend.position='bottom',
-          axis.text.x=element_text(angle = 35, hjust = 0),
+          axis.text.x=element_text(angle = 35, hjust = 0.5, 
+                                   size=8, vjust=0.5),
           plot.caption = element_text(hjust=0)) +
     # ggthemes::scale_color_tableau()
     scale_colour_manual(values = cpal)
