@@ -305,7 +305,7 @@ fig_bottom <- sst_plot
 
 <br>
 
-### **Figure 1) Map.** <span style="font-size: 16pt">Estimated shipping route (gray dots) and potential turtle deployment locations (colors) for June 2023.</span>
+### **Figure 1) Map.** <span style="font-size: 16pt">Estimated shipping route (gray circles) and potential turtle deployment locations (colored circles) for June 2023.</span>
 
 ```{r, eval=params$add_sst_map}
 print(str_c('Daily 5km SST map for ', getZ(enddate_ras), '. Black lines represent the 17 degree C isotherm. The Thermal Corridor study area is outlined in white.'))
