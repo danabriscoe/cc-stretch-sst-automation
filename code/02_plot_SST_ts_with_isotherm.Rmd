@@ -247,7 +247,7 @@ library(leaflet)
 library(leaflet.extras2)
 
 # get most recent daily sst raster. subtract enddate by 1 since in NZ time
-enddate_ras = subset(ras, which(getZ(ras) == (params$enddate - 0)))
+enddate_ras = subset(ras, which(getZ(ras) == (params$enddate - 1)))
 pal_rev <- colorNumeric(c("#2c7bb6","#abd9e9","#ffffbf","#fdae61", "#d7191c"), values(enddate_ras), reverse = FALSE, na.color = "transparent")
 
 ras_contour_17C = rasterToContour(enddate_ras, levels=17)
