@@ -52,13 +52,17 @@ mutate(ID = str_c(abs(lon), '°W')) #%>%
 # lons <- abs(df$lon) %>% unique()
 # lonID <- str_c(lons, '°W')
 
-## rename df for clarity ----
+## Rename df for clarity ----
 longterm_sst_mday_df <- longterm_df_formatted
 longterm_avgs_sst_mday <- longterm_avgs
 
-## save as rds ----
-# saveRDS(longterm_sst_mday_df, file='./data/longterm_sst_mday_df.rds')
+## Save as rds ----
+### save clims rds ----
 saveRDS(longterm_avgs_sst_mday, file='./data/longterm_avgs_sst_mday.rds')
+
+### save monthly values (before averaging) rds ----
+#### used for boxplot
+saveRDS(xtract_df_long_monthly, file='./data/longterm_avgs_sst_mday.rds')
 
 
 # ## plot
@@ -71,7 +75,7 @@ saveRDS(longterm_avgs_sst_mday, file='./data/longterm_avgs_sst_mday.rds')
 #   facet_wrap(~ID, ncol=1)
 
 
-## plot annual clims
+## Plot annual clims ----
 p_monthly_clims <- 
   df %>%
   select(c("ID", "lon", "lat", "date")) %>%
@@ -102,3 +106,43 @@ ggplot(data = ., aes(month, value, group = ID)) +
     labs(title = 'Monthly SST Climatologies Along Shipping Route', x="Month", y="Sea surface temperature (°C)",
          caption = "Source:\nNOAA Coral Reef Watch, 5-km Monthly SST (1997-2022)") 
   
+
+## Boxplot temps at locations for July ----
+
+july_df <- xtract_df_long_monthly %>% filter(month == '07')
+
+x = july_df %>%
+  # select(c("ID", "lon", "lat", "date")) %>%
+  mutate(month = month(date),
+         year = year(date),
+         lon = ceiling(lon),
+         lonID = str_c(abs(lon), '°W'))
+
+july_df_formatted <- x %>%
+  mutate(ID = str_c(abs(lon), ' W')) %>%
+  mutate(ID = as.factor(ID))
+
+july_df_formatted %>% 
+  filter(lon > -160 & lon < -140) %>%
+  ggplot(data=., aes(x=year, y=value)) + geom_line(aes(group = ID, color = factor(lon)), linewidth = 1, alpha = 0.5) + 
+  
+  geom_hline(yintercept=17, linetype="dashed", color = "gray10") +
+  
+  scale_y_continuous(limits=c(12,22), breaks=seq(12,22, 1)) +
+  scale_x_continuous(limits=c(1997,2021), breaks=seq(1997,2021, 1)) +
+  
+  theme_minimal() +
+  scale_colour_manual(values=cpal[2:3], name = "Longitude (°W)") +
+  
+  
+  labs(x="Date", y="Sea surface temperature (°C)") 
+
+
+p<-july_df_formatted %>% 
+  filter(lon > -160 & lon < -140) %>%
+  ggplot(., aes(x=lonID, y=value, color=lonID)) +
+  geom_boxplot() +
+  scale_colour_manual(values=c(cpal[3], cpal[2]), name = "Longitude (°W)")  + 
+  scale_y_continuous(limits=c(14,20), breaks=seq(14,20, 1)) +
+  labs(x='Longitude', y = "Average July SST", title="Boxplot of Average July SSTs (1997 - 2021) by Longitude") 
+p
