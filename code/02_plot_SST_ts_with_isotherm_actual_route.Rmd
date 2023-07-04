@@ -328,8 +328,8 @@ recent_loc <- nrow(actual_ship)
 
 # make marker labels
 actual_ship_labels <- sprintf(
-  "<strong> Date: %s</strong><br/><strong>Lat: %s°N</strong><br/> <strong>Lon: %s°E</strong>",
-  actual_ship$date, round(actual_ship$lat,2), round(actual_ship$lon,2) 
+  "<strong> Date: %s</strong><br/><strong>Lat: %s°N</strong><br/> <strong>Lon: %s°E</strong><br/> <strong>SST: %s°C</strong>",
+  actual_ship$date, round(actual_ship$lat,2), round(actual_ship$lon,2), actual_ship$insitu_sst 
 ) %>% lapply(htmltools::HTML)
 
 
