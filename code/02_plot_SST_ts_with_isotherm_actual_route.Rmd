@@ -395,9 +395,11 @@ fig_bottom <- sst_plot
 
 <br>
 
-### **Figure 1) Map.** <span style="font-size: 16pt"> Estimated shipping route (gray line) and actual route (green line).</span>
+### **Figure 1) Map.** <span style="font-size: 16pt"> </span>
 
-#### <span style="font-size: 14pt"> The green icon represents the most recently reported ship location. The 4 potential turtle eastern North Pacific release locations for July 2023 are shown as colored circles. The Thermal Corridor area is outlined in white.<br></span>
+#### <span style="font-size: 14pt"> Estimated shipping route (gray line) and the actual route in green. The green icon represents the <span style="color:green">most recently reported ship location</span>.<br></span>
+
+#### <span style="font-size: 14pt"> The 4 potential turtle eastern North Pacific release locations for July 2023 are shown as colored circles. The Thermal Corridor area is outlined in white.<br></span>
 
 #### <span style="font-size: 14pt">Daily 5km SST is shown for **`r getZ(enddate_ras)`**, based on the most recently available remotely sensed data. Black lines represent the 17°C isotherm. </span>
 
