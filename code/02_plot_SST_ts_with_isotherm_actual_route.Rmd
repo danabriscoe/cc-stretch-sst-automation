@@ -288,11 +288,18 @@ if(params$add_sst_map){
               pal = pal_rev,
               values = values(enddate_ras),
               position = "topright",
-              title = "SST (deg C)",
+              title = "SST (°C)",
               labFormat = labelFormat(transform = function(x) sort(x, decreasing = FALSE))) 
   #Add the contour lines as lines on the map
   map <- addCircleMarkers(map, data = df_17C, lng = ~lng360, lat = ~lat, 
-                          label = "17 deg C SST isotherm",
+                          label = "17 °C SST isotherm",
+                          labelOptions = labelOptions(noHide = F, direction = "bottom",
+                                                style = list(
+
+                                                  "box-shadow" = "3px 3px rgba(0,0,0,0.25)",
+                                                  "font-size" = "12px",
+                                                  "border-color" = "rgba(0,0,0,0.5)"
+                                                )),
                           group = ~group, color = "gray10", radius = 1.5) #%>%
     # addPolylines(
     # data = df_17C,
@@ -308,6 +315,13 @@ if(params$add_sst_map){
       lng1 = 225, lat1 = 25,
       lng2 = 243, lat2 = 35, stroke = TRUE, weight = 3,
       color = "white", label = "Thermal Corridor Area",
+      labelOptions = labelOptions(noHide = F, direction = "bottom",
+                                                style = list(
+
+                                                  "box-shadow" = "3px 3px rgba(0,0,0,0.25)",
+                                                  "font-size" = "12px",
+                                                  "border-color" = "rgba(0,0,0,0.5)"
+                                                )),
       fillColor = "transparent"
     )
 
@@ -320,7 +334,10 @@ map <- fig_top
 ```{r add-actual-ship-route}
 ## Add actual shipping route onto fig_top map
 actual_ship <- read.csv('../data/ship_in_situ_info.csv', sep=',') %>% # fyi, had to open in text-edit and hit return to add blank line in next row
-  mutate(date = lubridate::ymd(date))
+  mutate(date = lubridate::ymd(date),
+         lat_deg = ifelse(lat > 0, str_c(round(lat,2), '°N'), str_c(round(lat,2), '°S')),
+         lon_deg = ifelse(lon < 0, str_c(round(lon,2), '°W'),str_c(round(lon,2), '°E')) 
+         )
 
 # pull most recent location (last row)
 recent_loc <- nrow(actual_ship)
@@ -328,9 +345,10 @@ recent_loc <- nrow(actual_ship)
 
 # make marker labels
 actual_ship_labels <- sprintf(
-  "<strong> Date: %s</strong><br/><strong>Lat: %s°N</strong><br/> <strong>Lon: %s°E</strong><br/> <strong>SST: %s °C</strong>",
-  actual_ship$date, round(actual_ship$lat,2), round(actual_ship$lon,2), actual_ship$insitu_sst 
+  "<strong> Date: %s</strong><br/><strong>Lat: %s </strong><br/> <strong>Lon: %s </strong>",
+  actual_ship$date, actual_ship$lat_deg, actual_ship$lon_deg
 ) %>% lapply(htmltools::HTML)
+
 
 
 # make ship icon
@@ -345,10 +363,26 @@ map <- map %>%
     opacity = 3,
     color = 'green'
   ) |>
-  addCircleMarkers(lng = actual_ship$lon, lat = actual_ship$lat, color = 'green',radius = 3, weight=1.5, label=actual_ship_labels) |>
+  addCircleMarkers(lng = actual_ship$lon, lat = actual_ship$lat, color = 'green',radius = 3, weight=1.5, label=actual_ship_labels,
+                   labelOptions = labelOptions(noHide = F, direction = "bottom",
+                                                style = list(
+
+                                                  "box-shadow" = "3px 3px rgba(0,0,0,0.25)",
+                                                  "font-size" = "12px",
+                                                  "border-color" = "rgba(0,0,0,0.5)"
+                                                ))
+                   ) |>
   addAwesomeMarkers(lng = actual_ship$lon[recent_loc], lat = actual_ship$lat[recent_loc], 
                     icon=ship_icon,
-                    label=actual_ship_labels[recent_loc])
+                    label=actual_ship_labels[recent_loc],
+                    labelOptions = labelOptions(noHide = F, direction = "bottom",
+                                                style = list(
+
+                                                  "box-shadow" = "3px 3px rgba(0,0,0,0.25)",
+                                                  "font-size" = "12px",
+                                                  "border-color" = "rgba(0,0,0,0.5)"
+                                                ))
+                    )
 ```
 
 
@@ -364,7 +398,7 @@ fig_bottom <- sst_plot
 ### **Figure 1) Map.** <span style="font-size: 16pt">Estimated shipping route (gray line) and actual route (green line). The green icon represents the most recently known location. The 4 potential turtle eastern North Pacific deployment locations for July 2023 are shown as colored circles.</span>
 
 ```{r, eval=params$add_sst_map}
-print(str_c('Daily 5km SST map for ', getZ(enddate_ras), '. Black lines represent the 17 degree C isotherm. The Thermal Corridor study area is outlined in white.'))
+print(str_c('Daily 5km SST map for ', getZ(enddate_ras), '. Black lines represent the 17 degrees C isotherm. The Thermal Corridor study area is outlined in white.'))
 ```
 
 

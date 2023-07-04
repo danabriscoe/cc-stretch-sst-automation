@@ -140,7 +140,9 @@ get_npac_map <- function(xy, lon_type = '360', cpal, col_borders=TRUE){
   # get labels
   labels <- sprintf(
     # "<strong>Lat, Long</strong><br/>%s°N, %s°W",
-    "<strong>Lat: %s°N</strong><br/> <strong>Lon: %s°W</strong>",
+    # "<strong>Lat: %s°N</strong><br/> <strong>Lon: %s°W</strong>",
+  # "<strong>Lat: %g °N</strong><br/> <strong>Lon: %s °W</strong>",
+    "Lat: %g °N<br/>Lon: %s °W",
     unique(xy$y), unique(make180(xy$x))
   ) %>% 
     lapply(htmltools::HTML)
@@ -171,31 +173,57 @@ get_npac_map <- function(xy, lon_type = '360', cpal, col_borders=TRUE){
                      color = ifelse(col_borders, "black", cpal[1]), weight = 2,
                      fillColor = cpal[1],
                      stroke = TRUE,
-                     radius = 6, 
-                     label = labels[1]
+                     radius = 7, 
+                     label = labels[1], 
+                     labelOptions = labelOptions(noHide = F, direction = "bottom",
+                                                 style = list(
+                                                   "box-shadow" = "3px 3px rgba(0,0,0,0.25)",
+                                                   "font-size" = "12px",
+                                                   "border-color" = "rgba(0,0,0,0.5)"
+                                                 ))
                      ) |>
     addCircleMarkers(lng = xy$x[ceiling(xy$x) == 210], 
                      lat = xy$y[ceiling(xy$x) == 210], #color = cpal[2],
                      color = ifelse(col_borders, "black", cpal[2]), weight = 2,
                      fillColor = cpal[2],
                      stroke = TRUE,
-                     radius = 6, 
-                     label = labels[2]) |>
+                     radius = 7, 
+                     label = labels[2],
+                     labelOptions = labelOptions(noHide = F, direction = "bottom",
+                                                 style = list(
+                                                   "box-shadow" = "3px 3px rgba(0,0,0,0.25)",
+                                                   "font-size" = "12px",
+                                                   "border-color" = "rgba(0,0,0,0.5)"
+                                                 ))
+                     ) |>
     addCircleMarkers(lng = xy$x[ceiling(xy$x) == 215], 
                      lat = xy$y[ceiling(xy$x) == 215], #color = cpal[3],
                      color = ifelse(col_borders, "black", cpal[3]), weight = 2,
                      fillColor = cpal[3],
                      stroke = TRUE,
-                     radius = 6, 
-                     label = labels[3]
+                     radius = 7, 
+                     label = labels[3],
+                     labelOptions = labelOptions(noHide = F, direction = "bottom",
+                                                 style = list(
+                                                   "box-shadow" = "3px 3px rgba(0,0,0,0.25)",
+                                                   "font-size" = "12px",
+                                                   "border-color" = "rgba(0,0,0,0.5)"
+                                                 ))
                       ) |>
     addCircleMarkers(lng = xy$x[ceiling(xy$x) == 220], 
                      lat = xy$y[ceiling(xy$x) == 220], #color = cpal[4], 
                      color = ifelse(col_borders, "black", cpal[4]), weight = 2,
                      fillColor = cpal[4],
                      stroke = TRUE,
-                     radius = 6, 
-                     label = labels[4]) 
+                     radius = 7, 
+                     label = labels[4],
+                     labelOptions = labelOptions(noHide = F, direction = "bottom",
+                                                 style = list(
+                                                   "box-shadow" = "3px 3px rgba(0,0,0,0.25)",
+                                                   "font-size" = "12px",
+                                                   "border-color" = "rgba(0,0,0,0.5)"
+                                                 ))
+                     ) 
 
   return(map)
 }
