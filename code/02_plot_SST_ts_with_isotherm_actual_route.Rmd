@@ -395,11 +395,11 @@ fig_bottom <- sst_plot
 
 <br>
 
-### **Figure 1) Map.** <span style="font-size: 16pt">Estimated shipping route (gray line) and actual route (green line). The green icon represents the most recently known location. The 4 potential turtle eastern North Pacific deployment locations for July 2023 are shown as colored circles.</span>
+### **Figure 1) Map.** <span style="font-size: 16pt"> Estimated shipping route (gray line) and actual route (green line).</span>
 
-```{r, eval=params$add_sst_map}
-print(str_c('Daily 5km SST map for ', getZ(enddate_ras), '. Black lines represent the 17 degrees C isotherm. The Thermal Corridor area is outlined in white.'))
-```
+#### <span style="font-size: 14pt"> The green icon represents the most recently reported ship location. The 4 potential turtle eastern North Pacific release locations for July 2023 are shown as colored circles. The Thermal Corridor area is outlined in white.<br></span>
+
+#### <span style="font-size: 14pt">Daily 5km SST is shown for **`r getZ(enddate_ras)`**, based on the most recently available remotely sensed data. Black lines represent the 17°C isotherm. </span>
 
 
 ```{r plot-top-map, fig.height= 2, fig.width = 4, fig.align="center"}
@@ -410,10 +410,10 @@ map
 <br>
 
 ### **Figure 2) Average SST time series.** 
-<br>
-<span style="font-size: 16pt"> SST colors correspond to color locations on the map for the most recent weekly SST averages in 2023 (darker dotted-line) and long-term SST averages between 1997-2022 (lighter solid line). 
-The black horizontal line at 17°C is a reference for optimal temperatures during turtle release.
-</span>
+
+#### <span style="font-size: 14pt"> Colors correspond to the 4 possible release locations on the map.<br></span>
+
+#### <span style="font-size: 14pt"> For each location, the colored circles represent weekly SST averages during 2023. The lighter solid line represents the long-term monthly SST averages between 1997-2022. The black horizontal line at 17°C is a reference for optimal temperatures during turtle release.</span>
 
 ```{r, fig.height= 10}
 fig_bottom
