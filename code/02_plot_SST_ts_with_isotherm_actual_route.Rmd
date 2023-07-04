@@ -395,7 +395,7 @@ fig_bottom <- sst_plot
 
 <br>
 
-### **Figure 1) Map.** <span style="font-size: 16pt"> </span>
+### **Figure 1) Map.**
 
 #### <span style="font-size: 14pt"> Estimated shipping route (gray line) and the actual route in green. The green icon represents the <span style="color:green">most recently reported ship location</span>.<br></span>
 
