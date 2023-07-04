@@ -1,0 +1,392 @@
+---
+title: "Sea Surface Temperature (SST) Report"
+subtitle: "Project: STRETCH"
+author: "Author: Dana K Briscoe"
+date: 'Report Date: `r Sys.Date()`'
+output: 
+  html_document:
+    style: "style.css"
+params:
+  eov: "sst"
+  eov_unit: "°C"
+  deploy_lons: !r c(-160, -150, -145, -140) 
+  interval: "weekly"
+  sst_thresh: !r c(17)
+  enddate: !r Sys.Date() - 1
+  startdate: !r params$enddate - 15
+  add_clim: TRUE
+  add_sst_map: TRUE
+  save_rds: FALSE
+  nc_path: "/Users/briscoedk/dbriscoe@stanford.edu - Google Drive/My Drive/ncdf/deploy_reports"
+---
+
+<style>
+.main-container {
+    max-width: 1180px;
+    margin-left: 10;
+    margin-right: 10;
+}
+</style>
+
+
+```{r setup, include=FALSE}
+knitr::opts_chunk$set(
+    echo = FALSE,
+    eval = TRUE,
+    message = FALSE,
+    warning = FALSE,
+    dpi = 300,
+    fig.align = "center"
+    )
+
+# See Options: knitr::opts_chunk$get()
+```
+
+```{r load-libraries}
+# Load Libraries ---
+library(tidyverse)
+library(lubridate)
+library(raster)
+library(sf)
+library(plotly)
+library(ggthemes)
+
+```
+
+```{r source-helper-funcs}
+## Source helper functions
+source('00_automate_SST_helper_functions.R')
+```
+
+```{r list-ncs}
+# 1) get nc dir
+ncs <- list.files(params$nc_path, pattern = params$eov, full.names=T)
+
+```
+
+```{r get-date-range}
+## only for unit testing ---
+fdates <- ncs %>% 
+  str_split(., "_") %>%
+    purrr::map_chr(~ pluck(., 5)) %>%
+    substr(., start=1, stop=10)
+
+# params$startdate = fdates[1]
+# params$startdate = fdates[length(fdates)]
+
+## end only for unit testing ---
+dates = fdates
+# dates <- getDateRange(params$startdate, params$enddate, unit = 'day')
+
+```
+
+```{r get-ncs-by-date}
+# pull new ncdf by dates
+ncIn <- sapply(1:length(dates), function(x) ncs[grepl(dates[x],ncs)])
+
+```
+
+```{r nc-to-raster-stack}
+# convert ncs to raster stack
+ras <- raster::stack(ncIn)
+
+ras <- setZ(ras, ncIn %>% 
+    map_chr(~parseDT(., start=13, stop = 22, format="%Y-%m-%d")) %>%
+    as.Date(), name = 'date') 
+
+# name raster layers (select one)
+names(ras) <- tools::file_path_sans_ext(basename((ncIn)))
+names(ras) <- str_c('daily_sst_', getZ(ras))
+
+# 5 save as .grid in another dir??
+
+```
+
+```{r get-shipping-route-coords}
+# Port_Yokohama = c(139.997,34.673)
+Port_Yokohama = c(139.63211,34.85776) # updated for actual vs estimated track comparison
+port_start = c(139.89853,34.81944)
+Port_SanLazaro_Cardenas = c(-111.738, 22.750)
+   
+ship_route_pts <- get_shipping_route(port_start = port_start, port_end = Port_SanLazaro_Cardenas, lon_type = "360") #%>% mutate(across(everything(), round, 0))
+ship_route_pts <- rbind(Port_Yokohama, ship_route_pts)
+```
+
+```{r pull-xycoords-for-ts}
+# locate possible deploy lons along shipping route
+lons_idx = sapply(1:length(params$deploy_lons), function(x) {findInterval(make360(params$deploy_lons)[x], ceiling(make360(ship_route_pts$lon)), rightmost.closed  = TRUE)})
+
+# pull coords for timeseries
+xy <- ship_route_pts %>%
+    slice(lons_idx) %>%
+    # mutate(across(everything(), ceiling)) %>%   ## note: you'd think you'd use floor, but it's neg, so use ceiling to round down
+    setNames(c('x', 'y'))
+
+```
+
+
+```{r set-cpal}
+# based on specific lons & length of params$deploy_lons
+
+if (length(params$deploy_lons) == 4 & params$deploy_lons[1] == "-160") {
+  cpal <- c("#4E79A7", "#F28E2B", "#76B7B2", "#E15759")
+} else if (length(params$deploy_lons) == 3 & params$deploy_lons[1] == "-150") {
+  cpal <- c("#F28E2B", "#76B7B2", "#E15759")
+} else {
+  # otherwise, assign colors by n = deploy_lons
+  pal <- ggthemes::ggthemes_data[["tableau"]][["color-palettes"]][["regular"]][[1]]$value 
+
+  color.gradient <- function(x, colors = pal, colsteps = length(params$deploy_lons)) {
+    return(colorRampPalette(colors)(colsteps)[findInterval(x, seq(min(x), max(x), length.out = colsteps))])
+  }
+  cpal <- color.gradient(1:length(params$deploy_lons))
+}
+
+```
+
+```{r extract-xy-from-rasters}
+
+xtract_df_long <- get_timeseries(rasIn = ras, pts2extract = xy, subset_dt = getZ(ras)) %>%
+  mutate(lon = ceiling(lon))
+
+```
+
+```{r set-timeseries-dt-interval}
+if(params$interval == 'daily'){
+    df <- xtract_df_long %>% 
+          mutate(ID = str_c(abs(lon), '°W')) 
+    
+} else if(params$interval == 'weekly'){
+    
+    df <- xtract_df_long %>%
+        mutate(end_of_week = ceiling_date(date, "week") %>% as.Date(.)) %>%
+        group_by(end_of_week, ID, lon, lat) %>%
+        summarize(value = mean(value, na.rm = TRUE), .groups = "drop") %>%
+        rename('date' = 'end_of_week')
+}
+
+```
+
+```{r save-rds, eval=params$save_rds}
+saveRDS(df, file="../data/weekly_sst_df.rds")
+
+```
+
+
+
+```{r ggplot-xy-timeseries}
+# plot 
+p_sst_ts <- plot_timeseries(data = df %>% 
+                              mutate(ID = str_c(abs(ceiling(lon)), ' W')), 
+                            cpal = cpal, ylimits = c(6,20), ybreaks = seq(6,20, by = 2)) +
+    # 
+    geom_rect(aes(ymin = 16.9, ymax = 17.1,
+                            xmin = date[1], xmax = date[length(date)]), fill='gray10',
+            alpha = 0.15, inherit.aes = FALSE) +
+
+    # geom_hline(yintercept = params$sst_thresh, linetype = 2, colour = "azure4") +
+  scale_colour_manual(values=cpal, name = "Longitude ( W)") +
+  labs(x="Date", y="Sea surface temperature (°C)") +
+  # theme(legend.direction="horizontal",legend.position="top", legend.box = "vertical")+
+    NULL
+
+```
+
+```{r add-clims, eval=params$add_clim}
+# load clim rds
+# longterm_sst_mday_df <- readRDS(file='../data/longterm_sst_mday_df.rds')
+longterm_avgs <- readRDS(file='../data/longterm_avgs_sst_mday.rds')
+# source('add_clims.R')
+
+longterm_df <- df %>%
+  select(c("ID", "lon", "lat", "date")) %>%
+  mutate(month = month(date),
+         lon = ceiling(lon),
+         lonID = str_c(abs(lon), '°W')) %>%
+  left_join(., longterm_avgs, by =c('ID', 'month')) %>%
+  rename("value" = "longterm_avg") 
+
+longterm_df_formatted <- longterm_df %>%
+  mutate(ID = str_c(abs(lon), ' W')) %>%
+  mutate(ID = as.factor(ID))
+
+
+
+## plot
+p_longterm_sst_ts <-  p_sst_ts + 
+  # geom_hline(yintercept = 17, linetype = 2, colour = "black") +
+  geom_line(data = longterm_df_formatted, aes(group = ID, color = factor(lon)), linewidth = 1, alpha = 0.5) + 
+  scale_colour_manual(values=cpal, name = "Longitude (°W)") +
+  labs(x="Date", y="Sea surface temperature (°C)") +
+  # theme(legend.direction="horizontal",legend.position="top", legend.box = "vertical")+
+  theme(legend.position = "none") +
+  facet_wrap(~ID, ncol=1)
+
+
+
+```
+
+
+```{r}
+title = '' #str_c("\nAverage", str_to_title(params$interval), str_to_upper(params$eov), "along shipping route \n", sep = " ")
+subtitle = '' #str_c(str_to_upper(params$eov), "colors correspond to color locations on map for near real-time SST (darker dotted-line) \nand long-term climatology (lighter solid line)", sep = " ")
+  
+sst_plot <- p_longterm_sst_ts +
+  labs(
+    title = title,
+    subtitle = subtitle,
+    caption = "Source:\nNOAA Coral Reef Watch, 5-km Daily SST (weekly averages) and Monthly SST (long-term averages)",
+    x = "Date", y = str_c(str_to_upper(params$eov), " (", params$eov_unit, ")\n", sep = ""),
+    colour = "Longitude (°W)"
+  )
+
+
+```
+
+```{r add-sst-raster, eval=params$add_sst_map}
+library(raster)
+library(leaflet)
+library(leaflet.extras2)
+
+# get most recent daily sst raster. subtract enddate by 1 since in NZ time
+enddate_ras = subset(ras, which(getZ(ras) == (params$enddate - 1)))
+pal_rev <- colorNumeric(c("#2c7bb6","#abd9e9","#ffffbf","#fdae61", "#d7191c"), values(enddate_ras), reverse = FALSE, na.color = "transparent")
+
+ras_contour_17C = rasterToContour(enddate_ras, levels=17)
+
+coords_17C <- ras_contour_17C %>% 
+  as(., "SpatialPointsDataFrame") %>%
+  as.data.frame(as(., "SpatialPointsDataFrame"))
+
+df_17C <- data.frame(group = c("17"),
+                 lat = coords_17C$coords.x2,
+                 lng = coords_17C$coords.x1,
+                 lng360 = make360(coords_17C$coords.x1)) %>%
+      filter(lng360 > 181.0)
+
+```
+
+
+```{r plot-map}
+
+fig_top <- get_npac_map(xy, lon_type='360', cpal, col_borders=TRUE) %>% 
+  # addPolylines(
+  #   data = xy,
+  #   lng = ~y, 
+  #   lat = ~x,
+  #   weight = 3,
+  #   opacity = 3,
+  #   color = 'azure4'
+  # ) |>
+  addScaleBar(position = "bottomleft", options = scaleBarOptions())
+
+# Add SST daily raster to map
+if(params$add_sst_map){
+  map <- fig_top %>%
+    addRasterImage(enddate_ras, colors = pal_rev, opacity = 0.8) %>%
+    addLegend('topright',
+              pal = pal_rev,
+              values = values(enddate_ras),
+              position = "topright",
+              title = "SST (deg C)",
+              labFormat = labelFormat(transform = function(x) sort(x, decreasing = FALSE))) 
+  #Add the contour lines as lines on the map
+  map <- addCircleMarkers(map, data = df_17C, lng = ~lng360, lat = ~lat, 
+                          label = "17 deg C SST isotherm",
+                          group = ~group, color = "gray10", radius = 1.5) #%>%
+    # addPolylines(
+    # data = df_17C,
+    # lng = ~lng360, 
+    # lat = ~lat,
+    # weight = 1,
+    # opacity = 3,
+    # color = 'gray10',label = "17 deg C SST isotherm"
+    # )
+  
+  map <- map %>%
+    addRectangles(
+      lng1 = 225, lat1 = 25,
+      lng2 = 243, lat2 = 35, stroke = TRUE, weight = 3,
+      color = "white", label = "Thermal Corridor Area",
+      fillColor = "transparent"
+    )
+
+} else {
+map <- fig_top
+}
+
+```
+
+```{r add-actual-ship-route}
+## Add actual shipping route onto fig_top map
+actual_ship <- read.csv('../data/ship_in_situ_info.csv', sep=',') %>% # fyi, had to open in text-edit and hit return to add blank line in next row
+  mutate(date = lubridate::ymd(date))
+
+# pull most recent location (last row)
+recent_loc <- nrow(actual_ship)
+
+
+# make marker labels
+actual_ship_labels <- sprintf(
+  "<strong> Date: %s</strong><br/><strong>Lat: %s°N</strong><br/> <strong>Lon: %s°E</strong>",
+  actual_ship$date, round(actual_ship$lat,2), round(actual_ship$lon,2) 
+) %>% lapply(htmltools::HTML)
+
+
+# make ship icon
+ship_icon <- makeAwesomeIcon(icon= 'ship', markerColor = 'green', iconColor = 'white', library = "fa")
+
+map <- map %>%
+  addPolylines(
+    data = actual_ship,
+    lng = ~lon, 
+    lat = ~lat,
+    weight = 3,
+    opacity = 3,
+    color = 'green'
+  ) |>
+  addCircleMarkers(lng = actual_ship$lon, lat = actual_ship$lat, color = 'green',radius = 3, weight=1.5, label=actual_ship_labels) |>
+  addAwesomeMarkers(lng = actual_ship$lon[recent_loc], lat = actual_ship$lat[recent_loc], 
+                    icon=ship_icon,
+                    label=actual_ship_labels[recent_loc])
+```
+
+
+```{r fig-bottom}
+fig_bottom <- sst_plot
+
+# fig_bottom <- ggplotly(sst_plot, tooltip = c("text"))
+```
+
+
+<br>
+
+### **Figure 1) Map.** <span style="font-size: 16pt">Estimated shipping route (gray circles) and actual route (green). The green icon represents the most recently known location. The 4 potential turtle eastern North Pacific deployment locations for July 2023 are shown as colored circles.</span>
+
+```{r, eval=params$add_sst_map}
+print(str_c('Daily 5km SST map for ', getZ(enddate_ras), '. Black lines represent the 17 degree C isotherm. The Thermal Corridor study area is outlined in white.'))
+```
+
+
+```{r plot-top-map, fig.height= 2, fig.width = 4, fig.align="center"}
+# fig_top 
+map
+```
+
+<br>
+
+### **Figure 2) Average SST time series.** 
+<br>
+<span style="font-size: 16pt"> SST colors correspond to color locations on the map for the most recent weekly SST averages in 2023 (darker dotted-line) and long-term SST averages between 1997-2022 (lighter solid line). 
+The black horizontal line at 17°C is a reference for optimal temperatures during turtle release.
+</span>
+
+```{r, fig.height= 10}
+fig_bottom
+```
+
+
+```{r}
+print(str_c('publish date-time: ', Sys.time(), ' ', Sys.timezone()))
+```
+

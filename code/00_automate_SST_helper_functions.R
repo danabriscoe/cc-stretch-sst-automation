@@ -139,7 +139,8 @@ get_npac_map <- function(xy, lon_type = '360', cpal, col_borders=TRUE){
     
   # get labels
   labels <- sprintf(
-    "<strong>Lat/Long</strong><br/>%s°N, %g°W",
+    # "<strong>Lat, Long</strong><br/>%s°N, %s°W",
+    "<strong>Lat: %s°N</strong><br/> <strong>Lon: %s°W</strong>",
     unique(xy$y), unique(make180(xy$x))
   ) %>% 
     lapply(htmltools::HTML)
@@ -155,6 +156,15 @@ get_npac_map <- function(xy, lon_type = '360', cpal, col_borders=TRUE){
     addTiles() |>
     
     addCircleMarkers(lng = ship_pts$lon, lat = ship_pts$lat, color = 'azure4',radius = 2, weight=0.5) |>
+    
+    addPolylines(
+      data = ship_pts,
+      lng = ~lon, 
+      lat = ~lat,
+      weight = 3,
+      opacity = 3,
+      color = 'gray'
+    ) |>
 
     addCircleMarkers(lng = xy$x[ceiling(xy$x) == 200], 
                      lat = xy$y[ceiling(xy$x) == 200], #color = cpal[1],
