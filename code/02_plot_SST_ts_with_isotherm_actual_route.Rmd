@@ -398,7 +398,7 @@ fig_bottom <- sst_plot
 ### **Figure 1) Map.** <span style="font-size: 16pt">Estimated shipping route (gray line) and actual route (green line). The green icon represents the most recently known location. The 4 potential turtle eastern North Pacific deployment locations for July 2023 are shown as colored circles.</span>
 
 ```{r, eval=params$add_sst_map}
-print(str_c('Daily 5km SST map for ', getZ(enddate_ras), '. Black lines represent the 17 degrees C isotherm. The Thermal Corridor study area is outlined in white.'))
+print(str_c('Daily 5km SST map for ', getZ(enddate_ras), '. Black lines represent the 17 degrees C isotherm. The Thermal Corridor area is outlined in white.'))
 ```
 
 
