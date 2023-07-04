@@ -10,3 +10,5 @@ long = c("145° 36.6")
 # 36°59.0N
 # 145°36.6E
 parzer::parse_lon_lat(lon = long, lat = lat)
+
+parzer::parse_lon_lat(lon = "153° 12.0", lat = "39° 22.9")
