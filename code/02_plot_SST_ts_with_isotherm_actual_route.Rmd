@@ -385,6 +385,33 @@ map <- map %>%
                     )
 ```
 
+```{r}
+library(plotly)
+p_insitu_sst <- 
+  ggplot(data = actual_ship %>% drop_na(), aes(lon, insitu_sst, group = 1, text = 
+  str_c('Date: ', date,
+        '\nLat: ', lat_deg,
+        '</br>Lon: ', lon_deg,
+        '</br>SST: ', insitu_sst, "°C"))) +
+  geom_point(aes(x=lon, y=insitu_sst), color = 'darkseagreen4', size = 3) +
+  geom_line(aes(x=lon, y=insitu_sst),color = 'darkseagreen4', linewidth = 1) +
+  
+  scale_y_continuous(limits=c(14,27), breaks=seq(14,26,2)) +
+  scale_x_longitude(xmin=120, xmax=255, step=10) +
+  
+  geom_rect(aes(ymin = 17.0, ymax = 17.1,
+                xmin = 140, xmax = 255), fill='black',
+            alpha = 1, inherit.aes = FALSE) +
+
+  theme_minimal() +
+  theme(legend.position = "none") + labs(x="Date", y = "SST (°C)")
+
+
+p<- ggplotly(p_insitu_sst,tooltip = list("text"))
+
+fig_2 <- p
+```
+
 
 ```{r fig-bottom}
 fig_bottom <- sst_plot
@@ -411,7 +438,21 @@ map
 
 <br>
 
-### **Figure 2) Average SST time series.** 
+### **Figure 2) Daily ship-based SST measurements.**
+
+#### <span style="font-size: 14pt"> <span style="color:green">Daily SST measurements</span> recorded on board the ship. The black horizontal line at 17°C is a reference for optimal temperatures during turtle release.</span>
+
+#### <span style="font-size: 14pt"> Use the mouse to hover over each data point for detailed information.</span>
+
+```{r insitu-ggplot, fig.height=1.5}
+fig_2
+
+```
+
+<br>
+
+
+### **Figure 3) Average SST time series.** 
 
 #### <span style="font-size: 14pt"> Colors correspond to the 4 possible release locations on the map.<br></span>
 

@@ -128,12 +128,21 @@ make360 <- function(lon){
   return(lon)
 }
 
+
+scale_x_longitude <- function(xmin=0, xmax=360, step=1, ...) {
+  xbreaks <- seq(xmin,xmax,step)
+  # xlabels <- unlist(lapply(xbreaks, function(x) ifelse(x < 180, paste0(x, "°E"), ifelse(x > 0, paste0("", abs(make180(x)), "°W"),x))))
+  xlabels <- unlist(lapply(xbreaks, function(x) ifelse(x < 180, paste0(x, "°E"), ifelse(x > 180, paste0("", abs(make180(x)), "°W"),ifelse(x == 180, paste0(x, "°"),x)))))
+  return(scale_x_continuous("Longitude", breaks = xbreaks, labels = xlabels, expand = c(0, 0)))
+}
+
+
 library(leaflet)
 
 
 get_npac_map <- function(xy, lon_type = '360', cpal, col_borders=TRUE){
   if(lon_type=='360'){
-    xy <- xy %>% mutate(x = make360(x))
+    xy <- xy %>% mutate(x = make360(x), ID = seq(1,nrow(.),1))
     ship_route_pts <- ship_route_pts |> mutate(lon = make360(lon))
   }
     
@@ -141,7 +150,7 @@ get_npac_map <- function(xy, lon_type = '360', cpal, col_borders=TRUE){
   labels <- sprintf(
     # "<strong>Lat, Long</strong><br/>%s°N, %s°W",
     # "<strong>Lat: %s°N</strong><br/> <strong>Lon: %s°W</strong>",
-  "<strong>Lat: %s °N</strong><br/> <strong>Lon: %s °W</strong>",
+  "<strong>Potential Release Location</strong><br/><strong>Lat: %s °N</strong><br/> <strong>Lon: %s °W</strong>",
     # "Lat: %g °N<br/>Lon: %s °W",
     unique(xy$y), unique(make180(xy$x))
   ) %>% 
