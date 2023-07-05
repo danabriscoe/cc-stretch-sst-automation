@@ -396,15 +396,20 @@ p_insitu_sst <-
   geom_point(aes(x=lon, y=insitu_sst), color = 'darkseagreen4', size = 3) +
   geom_line(aes(x=lon, y=insitu_sst),color = 'darkseagreen4', linewidth = 1) +
   
-  scale_y_continuous(limits=c(14,27), breaks=seq(14,26,2)) +
-  scale_x_longitude(xmin=120, xmax=255, step=10) +
+  scale_y_continuous(limits=c(12,27), breaks=seq(12,26,2)) +
+  scale_x_longitude(xmin=120, xmax=245, step=10) +
   
   geom_rect(aes(ymin = 17.0, ymax = 17.1,
                 xmin = 140, xmax = 255), fill='black',
             alpha = 1, inherit.aes = FALSE) +
 
   theme_minimal() +
-  theme(legend.position = "none") + labs(x="Date", y = "SST (°C)")
+  theme(legend.position = "none",
+        axis.text.x=element_text(size=12),
+        axis.text.y=element_text(size=12),
+        axis.title = element_text(size = 12)
+        ) + 
+  labs(x="Longitude", y = "SST (°C)\n")
 
 
 p<- ggplotly(p_insitu_sst,tooltip = list("text"))
@@ -444,7 +449,7 @@ map
 
 #### <span style="font-size: 14pt"> Use the mouse to hover over each data point for detailed information.</span>
 
-```{r insitu-ggplot, fig.height=1.5}
+```{r insitu-ggplot, fig.height=1.5, fig.width=4}
 fig_2
 
 ```
