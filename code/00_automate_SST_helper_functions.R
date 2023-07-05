@@ -132,7 +132,7 @@ make360 <- function(lon){
 scale_x_longitude <- function(xmin=0, xmax=360, step=1, ...) {
   xbreaks <- seq(xmin,xmax,step)
   # xlabels <- unlist(lapply(xbreaks, function(x) ifelse(x < 180, paste0(x, "°E"), ifelse(x > 0, paste0("", abs(make180(x)), "°W"),x))))
-  xlabels <- unlist(lapply(xbreaks, function(x) ifelse(x < 180, paste0(x, "°E"), ifelse(x > 180, paste0("", abs(make180(x)), "°W"),ifelse(x == 180, paste0(x, "°"),x)))))
+  xlabels <- unlist(lapply(xbreaks, function(x) ifelse(x < 180, paste0(x, " E"), ifelse(x > 180, paste0("", abs(make180(x)), " W"),ifelse(x == 180, paste0(x, " "),x)))))
   return(scale_x_continuous("Longitude", breaks = xbreaks, labels = xlabels, expand = c(0, 0)))
 }
 

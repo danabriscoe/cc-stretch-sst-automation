@@ -409,7 +409,7 @@ p_insitu_sst <-
         axis.text.y=element_text(size=12),
         axis.title = element_text(size = 12)
         ) + 
-  labs(x="Longitude", y = "SST (°C)\n")
+  labs(x="Longitude", y = "SST (degrees C)\n")
 
 
 p<- ggplotly(p_insitu_sst,tooltip = list("text"))
