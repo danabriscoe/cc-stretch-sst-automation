@@ -178,7 +178,7 @@ saveRDS(df, file="../data/weekly_sst_df.rds")
 # plot 
 p_sst_ts <- plot_timeseries(data = df %>% 
                               mutate(ID = str_c(abs(ceiling(lon)), ' W')), 
-                            cpal = cpal, ylimits = c(6,20), ybreaks = seq(6,20, by = 2)) +
+                            cpal = cpal, ylimits = c(6,24), ybreaks = seq(6,24, by = 2)) +
     # 
     geom_rect(aes(ymin = 16.9, ymax = 17.1,
                             xmin = date[1], xmax = date[length(date)]), fill='gray10',
@@ -221,6 +221,7 @@ p_longterm_sst_ts <-  p_sst_ts +
   # theme(legend.direction="horizontal",legend.position="top", legend.box = "vertical")+
   theme(legend.position = "none") +
   facet_wrap(~ID, ncol=1)
+             # , scales='free')
 
 
 
@@ -463,7 +464,7 @@ fig_2
 
 #### <span style="font-size: 14pt"> For each location, the colored circles represent weekly SST averages during 2023. The lighter solid line represents the long-term monthly SST averages between 1997-2022. The black horizontal line at 17°C is a reference for optimal temperatures during turtle release.</span>
 
-```{r, fig.height= 10}
+```{r, fig.height= 9}
 fig_bottom
 ```
 
