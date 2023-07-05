@@ -445,7 +445,7 @@ map
 
 ### **Figure 2) Daily ship-based SST measurements.**
 
-#### <span style="font-size: 14pt"> <span style="color:green">Daily SST measurements</span> recorded on board the ship. The black horizontal line at 17°C is a reference for optimal temperatures during turtle release.</span>
+#### <span style="font-size: 14pt"> <span style="color:green">Daily SST measurements</span> recorded on the ship. The black horizontal line at 17°C is a reference for optimal temperatures during turtle release.</span>
 
 #### <span style="font-size: 14pt"> Use the mouse to hover over each data point for detailed information.</span>
 
