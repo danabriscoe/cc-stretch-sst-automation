@@ -150,7 +150,7 @@ get_npac_map <- function(xy, lon_type = '360', cpal, col_borders=TRUE){
   labels <- sprintf(
     # "<strong>Lat, Long</strong><br/>%s°N, %s°W",
     # "<strong>Lat: %s°N</strong><br/> <strong>Lon: %s°W</strong>",
-  "<strong>Potential Release Location</strong><br/><strong>Lat: %s °N</strong><br/> <strong>Lon: %s °W</strong>",
+  "<strong>Potential Release Location </strong><br/><strong>Lat: %s °N</strong><br/> <strong>Lon: %s °W</strong>",
     # "Lat: %g °N<br/>Lon: %s °W",
     unique(xy$y), unique(make180(xy$x))
   ) %>% 
