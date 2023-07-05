@@ -390,9 +390,9 @@ library(plotly)
 p_insitu_sst <- 
   ggplot(data = actual_ship %>% drop_na(), aes(lon, insitu_sst, group = 1, text = 
   str_c('Date: ', date,
-        '\nLat: ', lat_deg,
-        '</br>Lon: ', lon_deg,
-        '</br>SST: ', insitu_sst, "°C"))) +
+        '\nLat: ', round(lat, 2), " N",
+        '</br>Lon: ', ifelse(lon < 0, str_c(round(lon,2), ' W'), str_c(round(lon,2), ' E')), 
+        '</br>SST: ', insitu_sst, " C"))) +
   geom_point(aes(x=lon, y=insitu_sst), color = 'darkseagreen4', size = 3) +
   geom_line(aes(x=lon, y=insitu_sst),color = 'darkseagreen4', linewidth = 1) +
   
