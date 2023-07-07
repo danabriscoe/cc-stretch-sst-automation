@@ -13,3 +13,9 @@ parzer::parse_lon_lat(lon = long, lat = lat)
 
 parzer::parse_lon_lat(lon = "153° 12.0", lat = "39° 22.9")
 parzer::parse_lon_lat(lon = "161° 55.1", lat = "41° 29.9")
+
+parzer::parse_lon_lat(lon = "170° 33.5", lat = "42° 50.8")
+parzer::parse_lon_lat(lon = "179° 44.1", lat = "43° 32.6")
+
+43°32.6N
+179°44.1E
