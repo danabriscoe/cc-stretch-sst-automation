@@ -336,9 +336,8 @@ map <- fig_top
 ## Add actual shipping route onto fig_top map
 actual_ship <- read.csv('../data/ship_in_situ_info.csv', sep=',') %>% # fyi, had to open in text-edit and hit return to add blank line in next row
   mutate(date = lubridate::ymd(date),
-         lon = make180(lon),
          lat_deg = ifelse(lat > 0, str_c(round(lat,2), '°N'), str_c(round(lat,2), '°S')),
-         lon_deg = ifelse(lon < 0, str_c(round(lon,2), '°W'),str_c(round(lon,2), '°E')) 
+         lon_deg = ifelse(make180(lon) < 0, str_c(round(make180(lon),2), '°W'),str_c(round(lon,2), '°E')) 
          )
 
 # pull most recent location (last row)
@@ -393,7 +392,7 @@ p_insitu_sst <-
   ggplot(data = actual_ship %>% drop_na(), aes(lon, insitu_sst, group = 1, text = 
   str_c('Date: ', date,
         '\nLat: ', round(lat, 2), " N",
-        '</br>Lon: ', ifelse(lon < 0, str_c(round(lon,2), ' W'), str_c(round(lon,2), ' E')), 
+        '</br>Lon: ', ifelse(make180(lon) < 0, str_c(round(make180(lon),2), ' W'), str_c(round(lon,2), ' E')), 
         '</br>SST: ', insitu_sst, " C"))) +
   geom_point(aes(x=lon, y=insitu_sst), color = 'darkseagreen4', size = 3) +
   geom_line(aes(x=lon, y=insitu_sst),color = 'darkseagreen4', linewidth = 1) +
