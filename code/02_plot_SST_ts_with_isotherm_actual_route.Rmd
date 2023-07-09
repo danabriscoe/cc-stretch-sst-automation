@@ -336,6 +336,7 @@ map <- fig_top
 ## Add actual shipping route onto fig_top map
 actual_ship <- read.csv('../data/ship_in_situ_info.csv', sep=',') %>% # fyi, had to open in text-edit and hit return to add blank line in next row
   mutate(date = lubridate::ymd(date),
+         lon = make180(lon),
          lat_deg = ifelse(lat > 0, str_c(round(lat,2), '°N'), str_c(round(lat,2), '°S')),
          lon_deg = ifelse(lon < 0, str_c(round(lon,2), '°W'),str_c(round(lon,2), '°E')) 
          )
