@@ -56,3 +56,22 @@ parzer::parse_lon_lat(lon = "146° 04.0", lat = "39° 18.0")
 # lon      lat
 # 146.0667 39.3
 make360(-146.0667)
+
+
+
+
+# parzer::parse_lon_lat(lon = "145° 15.5", lat = "39° 04.4")
+# 39°04.4N
+# 145°15.5W
+# seawater temperature is 25.0℃
+# # lon      lat
+# # 145.2583 39.07333
+# make360(-145.2583)
+
+parzer::parse_lon_lat(lon = "146° 04.0", lat = "39° 18.9")
+39°18.9N
+146°04.0W
+seawater temperature is 24.8℃
+# lon      lat
+# 146.0667 39.315
+make360(-146.0667)
