@@ -353,7 +353,7 @@ actual_ship_labels <- sprintf(
 
 
 # make ship icon
-ship_icon <- makeAwesomeIcon(icon= 'ship', markerColor = '#76B7B2', iconColor = 'white', library = "fa")
+ship_icon <- makeAwesomeIcon(icon= 'ship', markerColor = 'green', iconColor = 'white', library = "fa")
 
 map <- map %>%
   addPolylines(
@@ -430,7 +430,7 @@ fig_bottom <- sst_plot
 
 ### **Figure 1) Map.**
 
-#### <span style="font-size: 14pt"> Estimated shipping route (gray line) and the actual route in green. The ship icon represents the <span style="color:#76B7B2">location of turtle release on July 10, 2023</span>.<br></span>
+#### <span style="font-size: 14pt"> Estimated shipping route (gray line) and the actual route in green. The ship icon represents the <span style="color:green">location of turtle release on July 10, 2023</span>.<br></span>
 
 #### <span style="font-size: 14pt"> The 4 potential turtle eastern North Pacific release locations for July 2023 are shown as colored circles. The Thermal Corridor area is outlined in white.<br></span>
 
