@@ -140,7 +140,7 @@ scale_x_longitude <- function(xmin=0, xmax=360, step=1, ...) {
 library(leaflet)
 
 
-get_npac_map <- function(xy, lon_type = '360', cpal, col_borders=TRUE){
+get_npac_map <- function(xy, lon_type = '360', add_deploy_lons=TRUE, cpal, col_borders=TRUE){
   if(lon_type=='360'){
     xy <- xy %>% mutate(x = make360(x), ID = seq(1,nrow(.),1))
     ship_route_pts <- ship_route_pts |> mutate(lon = make360(lon))
@@ -157,6 +157,7 @@ get_npac_map <- function(xy, lon_type = '360', cpal, col_borders=TRUE){
     lapply(htmltools::HTML)
   
   # leaflet map
+  if(add_deploy_lons){
   ship_pts <- ship_route_pts %>% 
     slice(., 1:(n() - 2)) # trim shipping great circle route end pts
     
@@ -234,7 +235,14 @@ get_npac_map <- function(xy, lon_type = '360', cpal, col_borders=TRUE){
                                                    "border-color" = "rgba(0,0,0,0.5)"
                                                  ))
                      ) 
-
+  } else { # end if add ship_pts == TRUE
+    map <- #ship_pts |>
+      leaflet() |>
+      # fitBounds(120, 15, 250, 60) %>%
+      # setView(210, 30, zoom = 3) |>. # full npac view
+      setView(210, 32, zoom = 4) |>
+      addTiles()
+  }
   return(map)
 }
 
