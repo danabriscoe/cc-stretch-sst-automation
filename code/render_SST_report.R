@@ -47,7 +47,7 @@ render_ncdfs(
   eov = "sst",
   varname = "CRW_SST",
   dataset_ID = "dhw_5km",
-  enddate <- Sys.Date() - 1,
+  enddate <- Sys.Date() - 2,
   startdate <- enddate - 15,
   timestep = "day",
   nc_path = "/Users/briscoedk/dbriscoe@stanford.edu - Google Drive/My Drive/ncdf/deploy_reports",
