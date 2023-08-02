@@ -81,10 +81,20 @@ get_timeseries <- function(rasIn, pts2extract, subset_dt){
   rr <- raster::subset(rasIn, which(getZ(rasIn) >= subset_dt))
   rr <- raster::setZ(rr, subset_dt)
   
+  if(grepl("X", getZ(rr[[1]]))){
   names(rr) <- getZ(rr) %>%
     format(., "%b-%d-%Y") %>%       # prevents X in front of date
     as.character() %>%
     str_replace(., " ", "_")
+  } else {
+    names(rr) <- getZ(rr) %>%
+      as.Date(.) %>%
+      format(., "%b-%d-%Y") %>%       # prevents X in front of date
+      as.character() 
+    # names(rr) <- names(rr) %>%
+    #   substr(., 1, 11) %>% 
+    #   gsub("\\.", "-", .)
+  }
   
   x_df <- cbind(raster::extract(rr, pts2extract, df = T), pts2extract)
   
