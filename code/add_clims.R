@@ -9,26 +9,64 @@ library(plotly)
 ## Source helper functions
 source('code/00_automate_SST_helper_functions.R')
 
-## Load SST brick ----
-all_rasters <- readRDS(file = '~/github/cc-stretch-exploratory/data/interim/sst_NOAA_DHW_monthly_Lon0360_rasters_Jan1997_Dec2021.rds') 
+# ## Load SST brick ----
+# all_rasters <- readRDS(file = '~/github/cc-stretch-exploratory/data/interim/sst_NOAA_DHW_monthly_Lon0360_rasters_Jan1997_Dec2021.rds') 
 
-dates = fdates    # grab only dates from daily rasters
+# get ncdf list
+list.ncs <- list.files('/Users/briscoedk/dbriscoe@stanford.edu - Google Drive/My Drive/ncdf/npac', pattern =  'sst_', full.names=T)
+
+filenames<-grep("monthly_",list.ncs)       
+ncs <- list.ncs[filenames]
+print(ncs[1])
+print(max(ncs))
+
+# later - set lines to trim to date range, if needed
+# sapply(1:length(dates), function(x) ncs[grepl(dates[x],ncs)])
+
+all_rasters <- raster::stack(ncs)
+
+fdates <- ncs %>% 
+  str_split(., "_") %>%
+  purrr::map_chr(~ pluck(., 6)) %>%
+  substr(., start=1, stop=10)
+# ----------
+
+# fdates <- getZ(all_rasters)
+all_rasters <- setZ(all_rasters, fdates)
+getZ(all_rasters)
+
+# dates = fdates    # grab only dates from daily rasters
 # or get all between apr-jul
 dates <- seq(ymd('2023-01-01'),ymd('2023-12-31'), by = '1 month')
 
-mdates <- lubridate::month(dates) %>% unique() #%>% month.abb[.] #%>% enframe() %>% transmute("mon_abb" = value)
+# mdates <- lubridate::month(dates) %>% unique() #%>% month.abb[.] #%>% enframe() %>% transmute("mon_abb" = value)
+mdates <- lubridate::month(fdates) %>% unique() #%>% month.abb[.] #%>% enframe() %>% transmute("mon_abb" = value)
 
+# subset to dates between Jan 1997 and Dec 2022 (keep 2023 out of it for now)
+all_rasters_subset <- subset(all_rasters, which(getZ(all_rasters) >= '1997-01-01' & (getZ(all_rasters) <= '2022-12-31')))
 
-idx <- getZ(all_rasters) %>%
+## used to subset by specific months. now doing all months (1-12), so this isn't really relevant. clean up later... ----
+# idx <- getZ(all_rasters) %>%
+  # fdates %>%
+idx <- getZ(all_rasters_subset) %>%
   lubridate::month(.) %>% as.tibble() %>%
   mutate(id = row_number()) %>%
   setNames(c('month', 'id')) %>%
   relocate(month, .after = id) %>%
   filter(month %in% mdates)
 
-ras_month = subset(all_rasters, idx$id)
+# ras_month = subset(all_rasters, idx$id)
+ras_month = subset(all_rasters_subset, idx$id)
+## --------------
 
-# fyi, need to set 'xy'
+# fyi, need to set 'xy' -- got this temporarily from 02_plot SST ts with isotherm...
+xy <- data.frame(x = unique(xtract_df_long$lon),  # -160 -150 -145 -140
+        y = unique(xtract_df_long$lat))           # 43.02 41.03 39.84 38.13
+
+xy <- data.frame(x = c(160, -150, -145, -140),
+                 y = c(43.02, 41.03, 39.84, 38.13))
+# unique(xtract_df_long$lon)
+# unique(xtract_df_long$lat)
 
 xtract_df_long_monthly <- get_timeseries(rasIn = ras_month, pts2extract = xy, subset_dt = getZ(ras_month))
 
@@ -38,8 +76,9 @@ longterm_avgs <- xtract_df_long_monthly %>%
   mutate(month = as.numeric(month)) 
 # mutate(date = str_c(year(fdates) %>% unique(), "-16-", month))  
 
-longterm_df <- df %>%
-  select(c("ID", "lon", "lat", "date")) %>%
+longterm_df <- xtract_df_long_monthly %>%
+  # df %>%
+  dplyr::select(c("ID", "lon", "lat", "date")) %>%
   mutate(month = month(date),
          lonID = str_c(abs(lon), '°W')) %>%
   left_join(., longterm_avgs, by =c('ID', 'month')) %>%
@@ -62,9 +101,10 @@ saveRDS(longterm_avgs_sst_mday, file='./data/longterm_avgs_sst_mday.rds')
 
 ### save monthly values (before averaging) rds ----
 #### used for boxplot
-saveRDS(xtract_df_long_monthly, file='./data/longterm_avgs_sst_mday.rds')
+# saveRDS(xtract_df_long_monthly, file='./data/longterm_avgs_sst_mday.rds')
 
-
+ 
+saveRDS(longterm_sst_mday_df, file='./data/longterm_sst_mday_df.rds')
 # ## plot
 # p_longterm_sst_ts <-  p_sst_ts +
 #   geom_line(data = longterm_df_formatted, aes(group = ID), linewidth = 1, alpha = 0.5) +
