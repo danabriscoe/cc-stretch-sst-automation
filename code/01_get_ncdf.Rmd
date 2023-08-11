@@ -46,23 +46,41 @@ source('00_automate_SST_helper_functions.R')
 ```
 
 ```{r set-timeout-length}
-options(timeout=120)
+options(timeout=360)
 ```
 
+```{r load-ncdf-list}
+eov_list <- jsonlite::read_json("../ncdf_list.json") %>%
+                data.table::rbindlist(., fill=TRUE) %>% 
+                # unnest(eov) %>%  
+                purrr::pmap_dfr(data.frame)  # deals with remaining cols in list form
 
-```{r set-dateRange}
-dates <- getDateRange(startdate = params$startdate,enddate = params$enddate, unit=params$timestep) 
 
 ```
 
 ```{r}
-if(params$dataset_ID == "NOAA_DHW_Lon0360"){
-    dates <- dates %>%
-    as.character() %>%
-    str_c(., 'T12:00:00Z', sep=" ")
-    
-    params$bbox <- params$bbox %>% mutate(xmin = make360(xmin), xmax = make360(xmax)) 
-}
+params_df <- eov_list[eov_list$eov == params$eov,]
+```
+
+```{r set-dateRange}
+dates <- getDateRange(startdate = params$startdate,enddate = params$enddate, unit=params$timestep) %>%
+    str_c(., unique(params_df$date_string), sep="")
+```
+
+
+```{r set-dateRange-old}
+# dates <- getDateRange(startdate = params$startdate,enddate = params$enddate, unit=params$timestep) 
+
+```
+
+```{r}
+# if(params$dataset_ID == "NOAA_DHW_Lon0360"){
+#     dates <- dates %>%
+#     as.character() %>%
+#     str_c(., 'T12:00:00Z', sep=" ")
+#     
+#     params$bbox <- params$bbox %>% mutate(xmin = make360(xmin), xmax = make360(xmax)) 
+# } 
 
 ```
 
@@ -70,10 +88,10 @@ if(params$dataset_ID == "NOAA_DHW_Lon0360"){
 for (i in 1:length(dates)) {
   tryCatch({
     getNCDF(
-    url = params$url,
-    eov = params$eov,
-    varname = params$varname,
-    dataset_ID = params$dataset_ID, 
+    url = params_df$url,
+    eov = params_df$eov,
+    varname = params_df$varname,
+    dataset_ID = params_df$dataset_ID, 
     bbox = params$bbox, 
     dt = dates[i], 
     ncpath = params$nc_path
