@@ -52,10 +52,10 @@ parzer::parse_lon_lat(lon = "153° 20.5", lat = "40° 56.1")
 make360(-153.3417)
 # [1] 206.6583
 
-parzer::parse_lon_lat(lon = "146° 04.0", lat = "39° 18.0")
-# lon      lat
-# 146.0667 39.3
-make360(-146.0667)
+# parzer::parse_lon_lat(lon = "146° 04.0", lat = "39° 18.0").      # don't use - no temp and measured just before release location on same day
+# # lon      lat
+# # 146.0667 39.3
+# make360(-146.0667)
 
 
 
