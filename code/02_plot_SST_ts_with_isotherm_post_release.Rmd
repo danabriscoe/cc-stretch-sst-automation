@@ -172,6 +172,11 @@ saveRDS(df, file="../data/weekly_sst_df.rds")
 
 ```
 
+```{r subset-start-date-ts}
+df <- df %>%
+  filter(date >= '2023-05-01')
+
+```
 
 
 ```{r ggplot-xy-timeseries}
