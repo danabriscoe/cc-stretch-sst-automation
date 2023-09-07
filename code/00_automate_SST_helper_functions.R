@@ -10,6 +10,7 @@
 
 # get date range
 getDateRange <- function(startdate, enddate, unit = "month", format = "%Y/%mm/%dd"){
+  if(unit == 'daily'){unit <- 'day'}
   
   ret <- seq(as.Date(startdate), as.Date(enddate), by = unit,format = format)
   
