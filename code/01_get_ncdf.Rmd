@@ -68,22 +68,6 @@ dates <- getDateRange(startdate = params$startdate,enddate = params$enddate, uni
 ```
 
 
-```{r set-dateRange-old}
-# dates <- getDateRange(startdate = params$startdate,enddate = params$enddate, unit=params$timestep) 
-
-```
-
-```{r}
-# if(params$dataset_ID == "NOAA_DHW_Lon0360"){
-#     dates <- dates %>%
-#     as.character() %>%
-#     str_c(., 'T12:00:00Z', sep=" ")
-#     
-#     params$bbox <- params$bbox %>% mutate(xmin = make360(xmin), xmax = make360(xmax)) 
-# } 
-
-```
-
 ```{r get-ncdfs}
 for (i in 1:length(dates)) {
   tryCatch({
