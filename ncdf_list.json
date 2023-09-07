@@ -11,6 +11,17 @@
 
     },
     {
+        "eov": "sst",
+        "timestep": "monthly",
+        "varname":"sea_surface_temperature",
+        "dataset_ID": "NOAA_DHW_monthly_Lon0360 ",
+        "date_string": "T00:00:00Z",
+        "alt": null,
+        "url": "https://coastwatch.pfeg.noaa.gov/erddap/griddap/",
+        "node:": "westcoast"
+
+    },
+    {
         "eov": "ssta",
         "timestep": "daily",
         "varname": "CRW_SSTANOMALY",
@@ -19,6 +30,17 @@
         "alt": null,
         "url": "https://pae-paha.pacioos.hawaii.edu/erddap/griddap/",
         "node:": "pacioos" 
+    },
+    {
+        "eov": "ssta",
+        "timestep": "monthly",
+        "varname":"sea_surface_temperature_anomaly",
+        "dataset_ID": "NOAA_DHW_monthly_Lon0360",
+        "date_string": "T00:00:00Z",
+        "alt": null,
+        "url": "https://coastwatch.pfeg.noaa.gov/erddap/griddap/",
+        "node:": "westcoast"
+
     },
     {
         "eov": "chla",
