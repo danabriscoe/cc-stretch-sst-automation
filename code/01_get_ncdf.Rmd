@@ -11,7 +11,7 @@ params:
   dataset_ID: "dhw_5km"
   enddate: !r Sys.Date() - 2
   startdate: !r params$enddate - 15
-  timestep: "day"
+  timestep: "daily"
   nc_path: "/Users/briscoedk/dbriscoe@stanford.edu - Google Drive/My Drive/ncdf/deploy_reports"
   bbox: !r tibble::tibble(ymin=20, ymax=50,xmin=-180, xmax=-110)
 ---
@@ -59,7 +59,7 @@ eov_list <- jsonlite::read_json("../ncdf_list.json") %>%
 ```
 
 ```{r}
-params_df <- eov_list[eov_list$eov == params$eov,]
+params_df <- eov_list[eov_list$eov == params$eov & eov_list$timestep == params$timestep,]
 ```
 
 ```{r set-dateRange}
