@@ -51,7 +51,7 @@ render_ncdfs(
   startdate <- enddate - 15,
   timestep = "day",
   nc_path = "/Users/briscoedk/dbriscoe@stanford.edu - Google Drive/My Drive/ncdf/deploy_reports",
-  bbox <- tibble(ymin=20, ymax=50,xmin=-180, xmax=-110)
+  bbox <- tibble(ymin=20, ymax=60,xmin=-180, xmax=-110)
 )
 
 
