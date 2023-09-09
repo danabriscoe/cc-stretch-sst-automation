@@ -20,6 +20,7 @@ params:
   nc_path: "/Users/briscoedk/dbriscoe@stanford.edu - Google Drive/My Drive/ncdf/deploy_reports"
 ---
 
+```{=html}
 <style>
 .main-container {
     max-width: 1180px;
@@ -27,8 +28,7 @@ params:
     margin-right: 10;
 }
 </style>
-
-
+```
 ```{r setup, include=FALSE}
 knitr::opts_chunk$set(
     echo = FALSE,
@@ -124,7 +124,6 @@ xy <- ship_route_pts %>%
 
 ```
 
-
 ```{r set-cpal}
 # based on specific lons & length of params$deploy_lons
 
@@ -177,7 +176,6 @@ df <- df %>%
   filter(date >= '2023-05-01')
 
 ```
-
 
 ```{r ggplot-xy-timeseries}
 # plot 
@@ -232,7 +230,6 @@ p_longterm_sst_ts <-  p_sst_ts +
 
 ```
 
-
 ```{r}
 title = '' #str_c("\nAverage", str_to_title(params$interval), str_to_upper(params$eov), "along shipping route \n", sep = " ")
 subtitle = '' #str_c(str_to_upper(params$eov), "colors correspond to color locations on map for near real-time SST (darker dotted-line) \nand long-term climatology (lighter solid line)", sep = " ")
@@ -280,7 +277,6 @@ df_17C <- data.frame(group = c("17"),
       filter(lng360 > 181.0)
 
 ```
-
 
 ```{r plot-map}
 # Plot leaflet with sst, but without deploy lons (n=4) and estimated shipping route
@@ -436,25 +432,21 @@ p<- ggplotly(p_insitu_sst,tooltip = list("text"))
 fig_2 <- p
 ```
 
-
 ```{r fig-bottom}
 fig_bottom <- sst_plot
 
 # fig_bottom <- ggplotly(sst_plot, tooltip = c("text"))
 ```
 
-
 <br>
 
 ### **Figure 1) Map.**
 
-#### <span style="font-size: 14pt"> Daily 5km SST is shown for **`r getZ(enddate_ras)`**, based on the latest remotely sensed data from [NOAA Coral Reef Watch](https://coralreefwatch.noaa.gov/product/5km/index_5km_sst.php).</span>
-#### <span style="font-size: 14pt"> The ship icon represents the <span style="color:green">location of turtle release on July 10, 2023</span>.<br></span>
+#### [Daily 5km SST is shown for **`r getZ(enddate_ras)`**, based on the latest remotely sensed data from [NOAA Coral Reef Watch](https://coralreefwatch.noaa.gov/product/5km/index_5km_sst.php).]{style="font-size: 14pt"}
 
-#### <span style="font-size: 14pt"> Black lines represent the 17°C isotherm. The Thermal Corridor area is outlined in white.<br><br></span>
+#### [The ship icon represents the]{style="font-size: 14pt"}[location of turtle release on July 10, 2023]{style="color:green"}.<br>
 
-
-
+#### [Black lines represent the 17°C isotherm. The Thermal Corridor area is outlined in white.<br><br>]{style="font-size: 14pt"}
 
 ```{r plot-top-map, fig.height= 2, fig.width = 4, fig.align="center"}
 # fig_top 
@@ -476,23 +468,20 @@ map
 
 <br>
 
+### **Figure 2) Average SST time series.**
 
-### **Figure 2) Average SST time series.** 
+#### [Weekly and long-term average sea surface temperatures at 4 longitudes in the eastern North Pacific (160W, 150W, 145W, 140W).<br>]{style="font-size: 14pt"}
 
-#### <span style="font-size: 14pt"> Weekly and long-term average sea surface temperatures at 4 longitudes in the eastern North Pacific (160W, 150W, 145W, 140W).<br></span>
+#### [For each longitude, the darker lines with circles represent the weekly SST average during 2023.]{style="font-size: 14pt"}
 
-#### <span style="font-size: 14pt"> For each longitude, the darker lines with circles represent the weekly SST average during 2023. </span>
+#### [To compare the current SST values during 2023 with the long-term average for the same time period, the lighter solid lines represent the long-term monthly SST averages between 1997-2022.]{style="font-size: 14pt"}
 
-#### <span style="font-size: 14pt"> To compare the current SST values during 2023 with the long-term average for the same time period, the lighter solid lines represent the long-term monthly SST averages between 1997-2022. </span>
-
-#### <span style="font-size: 14pt"> The black horizontal line at 17°C was used as a reference for optimal temperatures during turtle release.</span>
+#### [The black horizontal line at 17°C was used as a reference for optimal temperatures during turtle release.]{style="font-size: 14pt"}
 
 ```{r, fig.height= 9}
 fig_bottom
 ```
 
-
 ```{r}
 print(str_c('publish date-time: ', Sys.time(), ' ', Sys.timezone()))
 ```
-
