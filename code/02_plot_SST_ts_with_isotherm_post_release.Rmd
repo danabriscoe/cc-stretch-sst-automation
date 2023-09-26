@@ -444,7 +444,7 @@ fig_bottom <- sst_plot
 
 #### [Daily 5km SST is shown for **`r getZ(enddate_ras)`**, based on the latest remotely sensed data from [NOAA Coral Reef Watch](https://coralreefwatch.noaa.gov/product/5km/index_5km_sst.php).]{style="font-size: 14pt"}
 
-#### [The ship icon represents the]{style="font-size: 14pt"}[location of turtle release on July 10, 2023]{style="color:green"}.<br>
+#### [The ship icon represents the ]{style="font-size: 14pt"}[location of turtle release on July 10, 2023]{style="color:green"}.<br>
 
 #### [Black lines represent the 17°C isotherm. The Thermal Corridor area is outlined in white.<br><br>]{style="font-size: 14pt"}
 
