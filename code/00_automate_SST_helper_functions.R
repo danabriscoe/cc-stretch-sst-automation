@@ -125,6 +125,30 @@ parseDT <- function(x, idx, start, stop, format){
 }
 
 ## plot funcs ----
+
+#gg layers
+add_xWeeks_scale <- function(data, brks=7){
+  list(
+    scale_x_date(
+      # date_breaks = "1 week", date_minor_breaks = "1 week",             # if you want Monday (first of next week)
+      breaks = seq(data$date[1], data$date[length(data$date)],brks),         # else if you want Sunday of current weekly avg
+      date_labels = "%d %b",
+      limits = c(data$date[1], data$date[length(data$date)]))
+  )
+}
+
+
+add_theme <- function(){
+  list(
+  # theme_minimal(),
+    theme_bw(),
+    theme(legend.position='bottom',
+          axis.text.x=element_text(angle = 35, hjust = 0.5, 
+                                   size=8, vjust=0.5),
+          plot.caption = element_text(hjust=0)) 
+  )
+}
+
 make180 <- function(lon){
   isnot360<-min(lon)<0
   if (!isnot360) {
@@ -277,12 +301,12 @@ plot_timeseries <- function(data, #unit='day',
       date_labels = "%d %b",
       limits = c(data$date[1], data$date[length(data$date)])) +
     
-    theme_minimal() +
-    theme(legend.position='bottom',
-          axis.text.x=element_text(angle = 35, hjust = 0.5, 
-                                   size=8, vjust=0.5),
-          plot.caption = element_text(hjust=0)) +
-    # ggthemes::scale_color_tableau()
+    # theme_minimal() +
+    # theme(legend.position='bottom',
+    #       axis.text.x=element_text(angle = 35, hjust = 0.5, 
+    #                                size=8, vjust=0.5),
+    #       plot.caption = element_text(hjust=0)) +
+    # # ggthemes::scale_color_tableau()
     scale_colour_manual(values = cpal)
   
   return(g)
