@@ -9,7 +9,7 @@ render_ncdfs = function(node, url, eov, varname,
                         dataset_ID, enddate, startdate, timestep,
                         nc_path, bbox) {
   rmarkdown::render(
-    "../code/01_get_ncdf.Rmd",
+    here::here("code","01_get_ncdf.Rmd"),
     # "code/01_get_ncdf.Rmd",
     params = list(node = node, url = url, eov=eov, varname=varname,
                   dataset_ID = dataset_ID, enddate = enddate, startdate = startdate,
@@ -28,9 +28,9 @@ render_SST_timeseries = function(eov, eov_unit,
   rmarkdown::render(
     # "../code/02_plot_SST_ts.Rmd",
     # "../code/02_plot_SST_ts_with_18C_isotherm_post_release.Rmd",
-    "../code/02_plot_SST_ts_with_18C_isotherm_pre_cohort2_release.Rmd",
+    here::here("code","02_plot_SST_ts_with_18C_isotherm_pre_cohort2_release.Rmd"),
     # "code/02_plot_SST_ts.Rmd",
-    output_file = "../docs/index.html",
+    output_file = here::here("docs","index.html"),
     params = list(eov=eov, eov_unit=eov_unit,
                   deploy_lons = deploy_lons, interval = interval, sst_thresh = sst_thresh,
                   # enddate = enddate, startdate = startdate,
@@ -53,6 +53,16 @@ render_ncdfs(
   timestep = "day",
   nc_path = "/Users/briscoedk/dbriscoe@stanford.edu - Google Drive/My Drive/ncdf/deploy_reports",
   bbox <- tibble(ymin=20, ymax=60,xmin=-180, xmax=-110)
+)
+
+# get ssta daily
+render_ncdfs(
+  eov = "ssta",
+  timestep = "daily",
+  enddate <- Sys.Date() - 2,
+  startdate <- Sys.Date() - 3,#"2023-07-10",  ## JUST PULL MOST RECENT 2 dailys for SSTA map (for now)
+  nc_path = "/Users/briscoedk/dbriscoe@stanford.edu - Google Drive/My Drive/ncdf/npac",
+  bbox <- dplyr::tibble(ymin=20, ymax=50,xmin=-180, xmax=-110)
 )
 
 
