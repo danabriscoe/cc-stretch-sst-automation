@@ -50,12 +50,13 @@ fdates_ssta <- ncs_ssta %>%
 # params$startdate = fdates[length(fdates)]
 
 ## end only for unit testing ---
-dates_ssta = fdates
-enddate_idx = which(fdates == Sys.Date() - 2)
+dates_ssta = fdates_ssta
+enddate_idx = which(fdates_ssta == Sys.Date() - 2)
+previous_dt_idx = which(fdates_ssta == Sys.Date() - (366+2))
 
 
 # ncIn_ssta <- sapply(1:length(dates_ssta), function(x) ncs_ssta[grepl(dates_ssta[x],ncs_ssta)])
-ncIn_ssta <- sapply(enddate_idx, function(x) ncs_ssta[grepl(dates_ssta[x],ncs_ssta)]) # just get most recent date
+ncIn_ssta <- sapply(c(previous_dt_idx, enddate_idx), function(x) ncs_ssta[grepl(dates_ssta[x],ncs_ssta)]) # just get most recent date
 
 # convert ncs to raster stack
 ras_ssta <- raster::stack(ncIn_ssta)
@@ -77,6 +78,9 @@ library(RColorBrewer)
 # get most recent daily sst raster. subtract enddate by 1 since in NZ time
 # enddate_ras = subset(ras, which(getZ(ras) == (params$enddate - 1)))
 enddate_ras_ssta = subset(ras_ssta, which(getZ(ras_ssta) == (dates_ssta[enddate_idx])))
+previous_dt_ras_ssta = subset(ras_ssta, which(getZ(ras_ssta) == (dates_ssta[previous_dt_idx])))
+
+
 # pal_rev <- colorNumeric(c("#2c7bb6","#abd9e9","#ffffbf","#fdae61", "#d7191c"), values(enddate_ras), reverse = FALSE, na.color = "transparent")
 
 smooth_rainbow <- khroma::colour("smooth rainbow")
@@ -112,7 +116,7 @@ fig_top_ssta <- get_npac_map(xy, lon_type='360', add_deploy_lons=TRUE, cpal_ssta
 
 # Add SST daily raster to map
 if(params$add_sst_map){
-  map_ssta <- fig_top_ssta %>%
+  map_ssta_enddate <- fig_top_ssta %>%
     addRasterImage(enddate_ras_ssta, colors = pal_rev_ssta, opacity = 0.8) %>%
     addLegend('topright',
               pal = pal_rev_ssta,
@@ -120,20 +124,33 @@ if(params$add_sst_map){
               position = "topright",
               title = "SSTA (°C)",
               labFormat = labelFormat(transform = function(x) sort(x, decreasing = FALSE))) 
-  # #Add the contour lines as lines on the map
-  # map <- addCircleMarkers(map, data = df_18C, lng = ~lng360, lat = ~lat, 
-  #                         label = "18 degrees C SST isotherm",
-  #                         labelOptions = labelOptions(noHide = F, direction = "bottom",
-  #                                                     style = list(
-  #                                                       
-  #                                                       "box-shadow" = "3px 3px rgba(0,0,0,0.25)",
-  #                                                       "font-size" = "12px",
-  #                                                       "border-color" = "rgba(0,0,0,0.5)"
-  #                                                     )),
-  #                         group = ~group, color = "gray10", radius = 1.5) #%>%
-  # 
   
-  map_ssta <- map_ssta %>%
+  map_ssta_enddate <- map_ssta_enddate %>%
+    addRectangles(
+      lng1 = 225, lat1 = 25,
+      lng2 = 243, lat2 = 35, stroke = TRUE, weight = 3,
+      color = "white", label = "Thermal Corridor Area",
+      labelOptions = labelOptions(noHide = F, direction = "bottom",
+                                  style = list(
+                                    
+                                    "box-shadow" = "3px 3px rgba(0,0,0,0.25)",
+                                    "font-size" = "12px",
+                                    "border-color" = "rgba(0,0,0,0.5)"
+                                  )),
+      fillColor = "transparent"
+    )
+  
+  ## 2023
+  map_ssta_previous_dt<- fig_top_ssta %>%
+    addRasterImage(previous_dt_ras_ssta, colors = pal_rev_ssta, opacity = 0.8) %>%
+    addLegend('topright',
+              pal = pal_rev_ssta,
+              values = values(previous_dt_ras_ssta),
+              position = "topright",
+              title = "SSTA (°C)",
+              labFormat = labelFormat(transform = function(x) sort(x, decreasing = FALSE))) 
+  
+  map_ssta_previous_dt <- map_ssta_previous_dt %>%
     addRectangles(
       lng1 = 225, lat1 = 25,
       lng2 = 243, lat2 = 35, stroke = TRUE, weight = 3,
@@ -149,28 +166,13 @@ if(params$add_sst_map){
     )
   
 } else {
-  map_ssta <- fig_top_ssta
+  map_ssta_enddate <- fig_top_ssta
+  map_ssta_previous_dt <- fig_top_ssta
 }
 
-map_ssta_w_long_cohort1_markers <- 
-map_ssta %>%
-  # addPolylines(
-  #   data = actual_ship,
-  #   lng = ~lon, 
-  #   lat = ~lat,
-  #   weight = 3,
-  #   opacity = 3,
-  #   color = 'green'
-  # ) |>
-  # addCircleMarkers(lng = actual_ship$lon, lat = actual_ship$lat, color = 'green',radius = 3, weight=1.5, label=actual_ship_labels,
-  #                  labelOptions = labelOptions(noHide = F, direction = "bottom",
-  #                                               style = list(
-# 
-#                                                 "box-shadow" = "3px 3px rgba(0,0,0,0.25)",
-#                                                 "font-size" = "12px",
-#                                                 "border-color" = "rgba(0,0,0,0.5)"
-#                                               ))
-#                  ) |>
+# 2024 SSTA
+map_ssta_w_long_cohort1_markers_enddate <- 
+  map_ssta_enddate %>%
 addAwesomeMarkers(lng = actual_ship$lon[recent_loc], lat = actual_ship$lat[recent_loc], 
                   icon=ship_icon,
                   # label=actual_ship_labels[recent_loc],
@@ -183,5 +185,38 @@ addAwesomeMarkers(lng = actual_ship$lon[recent_loc], lat = actual_ship$lat[recen
                                                 "border-color" = "rgba(0,0,0,0.5)"
                                               ))
 )
-                  
-#### ----
+       
+# 2023 SSTA
+map_ssta_w_long_cohort1_markers_previous_dt <- 
+  map_ssta_previous_dt %>%
+  addAwesomeMarkers(lng = actual_ship$lon[recent_loc], lat = actual_ship$lat[recent_loc], 
+                    icon=ship_icon,
+                    # label=actual_ship_labels[recent_loc],
+                    label=release_loc_label[recent_loc],
+                    labelOptions = labelOptions(noHide = F, direction = "bottom",
+                                                style = list(
+                                                  
+                                                  "box-shadow" = "3px 3px rgba(0,0,0,0.25)",
+                                                  "font-size" = "12px",
+                                                  "border-color" = "rgba(0,0,0,0.5)"
+                                                ))
+  )
+
+
+# pull most recent location (last row)
+recent_loc <- nrow(actual_ship)
+
+
+# pull latest SSTA at ship route loc
+xtract_ssta_recent_loc_enddate <- get_timeseries(rasIn = enddate_ras_ssta, 
+                                                     pts2extract = tibble(x=actual_ship$lon[recent_loc],y=actual_ship$lat[recent_loc]), subset_dt = getZ(enddate_ras)) %>%
+  mutate(lon = ceiling(lon))
+
+
+xtract_ssta_recent_loc_previous_dt <- get_timeseries(rasIn = previous_dt_ras_ssta, 
+                                        pts2extract = tibble(x=actual_ship$lon[recent_loc],y=actual_ship$lat[recent_loc]), subset_dt = getZ(enddate_ras)) %>%
+  mutate(lon = ceiling(lon))
+
+           
+##
+## ----

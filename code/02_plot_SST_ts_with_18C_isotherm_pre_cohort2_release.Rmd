@@ -479,14 +479,31 @@ fig_bottom <- sst_plot +
 
 <br>
 
-### **Figure 1) SST Map.**
+```{r run-daily-ssta-script}
+source(here("code", "add_daily_ssta_map_pre_cohort2_release.R"))
+```
 
-#### [Daily 5km SST is shown for **`r getZ(enddate_ras)`**, based on the latest remotely sensed data from [NOAA Coral Reef Watch](https://coralreefwatch.noaa.gov/product/5km/index_5km_sst.php).]{style="font-size: 14pt"}
+<br>
 
-#### [The ship icon represents the ]{style="font-size: 14pt"} [ location of turtle release on July 10, 2023]{style="color:green"}. The daily SST at this location is: **`r xtract_sst_recent_loc$val`°C** [`r getZ(enddate_ras)`]. <br>
 
-#### [Black lines represent the **18°C** isotherm. The Thermal Corridor area is outlined in white.<br><br>]{style="font-size: 14pt"}
+### **Figure 1) Current & Previous SST and SSTA Conditions.** 
 
+#### [The tabs below show the daily 5km SST and SST anomalies (SSTA) for **`r getZ(enddate_ras)`**. ]{style="font-size: 14pt"} <br><br>
+
+
+#### [Current conditions are based on the latest remotely sensed data from [NOAA Coral Reef Watch](https://coralreefwatch.noaa.gov/product/5km/index_5km_sst.php). For comparison, the SSTA conditions are also shown for exactly 1 year prior (`r getZ(enddate_ras) - 366`).]{style="font-size: 14pt"}<br><br>
+
+#### [The ship icon represents the ]{style="font-size: 14pt"} [ location of turtle release on July 10, 2023]{style="color:green"}. [On `r getZ(enddate_ras)`, the SST at this location was: **`r xtract_sst_recent_loc$val`°C** ]{style="font-size: 14pt"}. <br>
+
+#### [This value represents a **`r xtract_ssta_recent_loc_enddate$val`°C** departure from average (2024) and a **`r xtract_ssta_recent_loc_previous_dt$val`°C** departure from average (2023).]{style="font-size: 14pt"}<br><br>
+
+
+#### [The 4 circles represent longitudes of interest (Figure 2) along a possible shipping route (gray line). Black lines represent the **18°C** isotherm. The Thermal Corridor area is outlined in white.<br><br>]{style="font-size: 14pt"}
+
+
+### {.tabset .tabset-pills}
+
+#### Current SST Conditions: 2024
 ```{r plot-top-map, fig.height= 2, fig.width = 4, fig.align="center"}
 # fig_top 
 map
@@ -494,23 +511,34 @@ map
 
 <br>
 
-### **Figure 2) SSTA Map.**
+<!-- ### **Figure 2) SSTA Map.** -->
 
-#### [Daily 5km SST Anomaly (SSTA) is shown for **`r getZ(enddate_ras)`**, based on the latest remotely sensed data from [NOAA Coral Reef Watch ](https://coralreefwatch.noaa.gov/product/5km/index_5km_ssta.php).]{style="font-size: 14pt"}
+<!-- #### [Daily 5km SST Anomaly (SSTA) is shown for **`r getZ(enddate_ras)`**, based on the latest remotely sensed data from [NOAA Coral Reef Watch ](https://coralreefwatch.noaa.gov/product/5km/index_5km_ssta.php).]{style="font-size: 14pt"} -->
 
-#### [All symbols are the same as in Figure 1. View evolving SST anomalies over the past 30 days [here](https://coralreefwatch.noaa.gov/data_current/5km/v3.1_op/animation/gif/ssta_animation_30day_pacific_930x580.gif).]{style="font-size: 14pt"} <br>
+<!-- #### [All symbols are the same as in Figure 1. View evolving SST anomalies over the past 30 days [here](https://coralreefwatch.noaa.gov/data_current/5km/v3.1_op/animation/gif/ssta_animation_30day_pacific_930x580.gif).]{style="font-size: 14pt"} <br> -->
 
 
-```{r run-daily-ssta-script}
-source(here("code", "add_daily_ssta_map_pre_cohort2_release.R"))
-```
+<!-- ```{r run-daily-ssta-script} -->
+<!-- source(here("code", "add_daily_ssta_map_pre_cohort2_release.R")) -->
+<!-- ``` -->
 
-```{r plot-top-map-ssta, fig.height= 2, fig.width = 4, fig.align="center"}
 
-map_ssta_w_long_cohort1_markers
+#### Current SST Anomalies: 2024
+```{r plot-top-map-ssta-2024, fig.height= 2, fig.width = 4, fig.align="center"}
+
+map_ssta_w_long_cohort1_markers_enddate
 ```
 
 <br>
+
+#### Previous Year's SST Anomalies (2023)
+```{r plot-top-map-ssta-2023, fig.height= 2, fig.width = 4, fig.align="center"}
+
+map_ssta_w_long_cohort1_markers_previous_dt
+```
+
+<br>
+
 <!-- ### **Figure 2) Daily ship-based SST measurements.** -->
 
 <!-- #### <span style="font-size: 14pt"> <span style="color:green">Daily SST measurements</span> recorded on the ship. The black horizontal line at 17°C is a reference for optimal temperatures during turtle release.</span> -->
@@ -522,9 +550,13 @@ map_ssta_w_long_cohort1_markers
 
 ```
 
+### {-}
+
 <br>
 
-### **Figure 3) Average SST time series.**
+
+
+### **Figure 2) Average SST time series.**
 
 #### [Weekly and long-term average sea surface temperatures at 4 longitudes in the eastern North Pacific (160W, 150W, 145W, 140W).<br>]{style="font-size: 14pt"}
 
