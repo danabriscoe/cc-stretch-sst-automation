@@ -531,7 +531,7 @@ map_ssta_w_long_cohort1_markers_enddate
 
 <br>
 
-#### Previous Year's SST Anomalies (2023)
+#### Previous Year's SST Anomalies: 2023
 ```{r plot-top-map-ssta-2023, fig.height= 2, fig.width = 4, fig.align="center"}
 
 map_ssta_w_long_cohort1_markers_previous_dt
@@ -560,9 +560,9 @@ map_ssta_w_long_cohort1_markers_previous_dt
 
 #### [Weekly and long-term average sea surface temperatures at 4 longitudes in the eastern North Pacific (160W, 150W, 145W, 140W).<br>]{style="font-size: 14pt"}
 
-#### [For each longitude, the darker lines with circles represent the weekly SST average during 2023.]{style="font-size: 14pt"}
+#### [For each longitude, the darker lines with circles represent the weekly SST average since 2023.]{style="font-size: 14pt"}
 
-#### [To compare the current SST values during 2023 with the long-term average for the same time period, the lighter solid lines represent the long-term monthly SST averages between 1997-2022.]{style="font-size: 14pt"}
+#### [To compare the current SST values (2023-present) with the long-term average for the same time period, the lighter solid lines represent the long-term monthly SST averages between 1997-2022.]{style="font-size: 14pt"}
 
 #### [The black horizontal line at 18°C was used as a reference for optimal temperatures during turtle release.]{style="font-size: 14pt"}
 
