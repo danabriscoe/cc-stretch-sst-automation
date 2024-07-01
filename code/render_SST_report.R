@@ -63,7 +63,7 @@ render_ncdfs(
   varname = "CRW_SSTANOMALY",
   dataset_ID = "dhw_5km",
   enddate <- Sys.Date() - 2,
-  startdate <- Sys.Date() - 3,#"2023-07-10",  ## JUST PULL MOST RECENT 2 dailys for SSTA map (for now)
+  startdate <- Sys.Date() - (3+14),#"2023-07-10",  ## JUST PULL MOST RECENT 2 dailys for SSTA map (for now) + covering last 2 weeks, just in case automator didn't run 
   timestep = "day",
   nc_path = "/Users/briscoedk/dbriscoe@stanford.edu - Google Drive/My Drive/ncdf/npac",
   bbox <- dplyr::tibble(ymin=20, ymax=50,xmin=-180, xmax=-110)
