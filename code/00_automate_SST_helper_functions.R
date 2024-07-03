@@ -126,6 +126,16 @@ parseDT <- function(x, idx, start, stop, format){
 
 ## plot funcs ----
 
+# add map inset
+
+addMapInset <- function(m){
+  m %>%  addMiniMap(
+    tiles = "Esri.WorldImagery",
+    position = 'bottomleft', 
+    # width = 200, height = 200,
+    toggleDisplay = TRUE) 
+}  
+
 #gg layers
 add_xWeeks_scale <- function(data, brks=7){
   list(
@@ -187,10 +197,10 @@ get_npac_map <- function(xy, lon_type = '360', add_deploy_lons=TRUE, cpal, col_b
     
   # get labels
   labels <- sprintf(
-    # "<strong>Lat, Long</strong><br/>%s°N, %s°W",
-    # "<strong>Lat: %s°N</strong><br/> <strong>Lon: %s°W</strong>",
-  "<strong>Potential Release Location </strong><br/><strong>Lat: %s °N</strong><br/> <strong>Lon: %s °W</strong>",
-    # "Lat: %g °N<br/>Lon: %s °W",
+ 
+  # "<strong>Potential Release Location </strong><br/><strong>Lat: %s °N</strong><br/> <strong>Lon: %s °W</strong>",
+    "<strong>Longitude for SST time series<br/>(see Figure 2)<br/></strong><br/><strong>Lat: %s °N</strong><br/> <strong>Lon: %s °W</strong>",
+    
     unique(xy$y), unique(make180(xy$x))
   ) %>% 
     lapply(htmltools::HTML)
@@ -203,20 +213,22 @@ get_npac_map <- function(xy, lon_type = '360', add_deploy_lons=TRUE, cpal, col_b
   map <- ship_pts |>
     leaflet() |>
     # fitBounds(120, 15, 250, 60) %>%
-    # setView(210, 30, zoom = 3) |>. # full npac view
-    setView(210, 32, zoom = 4) |>
+    setView(180, 35, zoom = 4) |> # full npac view
+    # setView(210, 32, zoom = 4) |> # epac view
     addTiles() |>
     
-    addCircleMarkers(lng = ship_pts$lon, lat = ship_pts$lat, color = 'azure4',radius = 2, weight=0.5) |>
+    ## Turn off/on great circle dots...
+    # addCircleMarkers(lng = ship_pts$lon, lat = ship_pts$lat, color = 'azure4',radius = 2, weight=0.5) |>
     
-    addPolylines(
-      data = ship_pts,
-      lng = ~lon, 
-      lat = ~lat,
-      weight = 3,
-      opacity = 3,
-      color = 'gray'
-    ) |>
+    ## Turn off/on great circle polyline...
+    # addPolylines(
+    #   data = ship_pts,
+    #   lng = ~lon, 
+    #   lat = ~lat,
+    #   weight = 3,
+    #   opacity = 3,
+    #   color = 'gray'
+    # ) |>
 
     addCircleMarkers(lng = xy$x[ceiling(xy$x) == 200], 
                      lat = xy$y[ceiling(xy$x) == 200], #color = cpal[1],
