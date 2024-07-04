@@ -1,0 +1,832 @@
+---
+title: "Sea Surface Temperature (SST) Report"
+subtitle: "Project: STRETCH"
+author: "Author: Dana K Briscoe"
+date: 'Report Date: `r Sys.Date()`'
+output: 
+  html_document:
+    style: "style.css"
+params:
+  eov: "sst"
+  eov_unit: "°C"
+  deploy_lons: !r c(-160, -150, -145, -140) 
+  interval: "weekly"
+  sst_thresh: !r c(18)
+  enddate: !r Sys.Date() - 2
+  startdate: !r params$enddate - 16
+  add_clim: TRUE
+  add_sst_map: TRUE
+  save_rds: FALSE
+  nc_path: "/Users/briscoedk/dbriscoe@stanford.edu - Google Drive/My Drive/ncdf/deploy_reports"
+---
+
+```{=html}
+<style>
+.main-container {
+    max-width: 1280px;
+    margin-left: 10;
+    margin-right: 10;
+}
+
+.superbigimage{
+      overflow-x:scroll;
+      white-space: nowrap;
+  }
+
+  .superbigimage img{
+     max-width: none;
+  }
+</style>
+```
+
+```{r setup, include=FALSE}
+knitr::opts_chunk$set(
+    echo = FALSE,
+    eval = TRUE,
+    message = FALSE,
+    warning = FALSE,
+    dpi = 300,
+    fig.align = "center"
+    )
+
+# See Options: knitr::opts_chunk$get()
+```
+
+```{r load-libraries}
+# Load Libraries ---
+library(tidyverse)
+library(lubridate)
+library(raster)
+library(sf)
+library(plotly)
+library(ggthemes)
+
+library(ggExtra)
+library(here)
+
+```
+
+```{r source-helper-funcs}
+## Source helper functions
+source(here('code','00_automate_SST_helper_functions.R'))
+
+```
+
+```{r list-ncs}
+# 1) get nc dir
+ncs <- list.files(params$nc_path, pattern = params$eov, full.names=T)
+
+```
+
+```{r get-date-range}
+## only for unit testing ---
+fdates <- ncs %>% 
+  str_split(., "_") %>%
+    purrr::map_chr(~ pluck(., 5)) %>%
+    substr(., start=1, stop=10)
+
+# params$startdate = fdates[1]
+# params$startdate = fdates[length(fdates)]
+
+## end only for unit testing ---
+dates = fdates
+# dates <- getDateRange(params$startdate, params$enddate, unit = 'day')
+
+```
+
+```{r get-ncs-by-date}
+# pull new ncdf by dates
+ncIn <- sapply(1:length(dates), function(x) ncs[grepl(dates[x],ncs)])
+
+```
+
+```{r nc-to-raster-stack}
+# convert ncs to raster stack
+ras <- raster::stack(ncIn)
+
+ras <- setZ(ras, ncIn %>% 
+    map_chr(~parseDT(., start=13, stop = 22, format="%Y-%m-%d")) %>%
+    as.Date(), name = 'date') 
+
+# name raster layers (select one)
+names(ras) <- tools::file_path_sans_ext(basename((ncIn)))
+names(ras) <- str_c('daily_sst_', getZ(ras))
+
+# 5 save as .grid in another dir??
+
+```
+
+```{r get-shipping-route-coords}
+# Port_Yokohama = c(139.997,34.673)
+Port_Yokohama = c(139.63211,34.85776) # updated for actual vs estimated track comparison
+port_start = c(139.89853,34.81944)
+Port_SanLazaro_Cardenas = c(-111.738, 22.750)
+   
+ship_route_pts <- get_shipping_route(port_start = port_start, port_end = Port_SanLazaro_Cardenas, lon_type = "360") #%>% mutate(across(everything(), round, 0))
+ship_route_pts <- rbind(Port_Yokohama, ship_route_pts)
+```
+
+```{r pull-xycoords-for-ts}
+# locate possible deploy lons along shipping route
+lons_idx = sapply(1:length(params$deploy_lons), function(x) {findInterval(make360(params$deploy_lons)[x], ceiling(make360(ship_route_pts$lon)), rightmost.closed  = TRUE)})
+
+# pull coords for timeseries
+xy <- ship_route_pts %>%
+    slice(lons_idx) %>%
+    # mutate(across(everything(), ceiling)) %>%   ## note: you'd think you'd use floor, but it's neg, so use ceiling to round down
+    setNames(c('x', 'y'))
+
+```
+
+```{r set-cpal}
+# based on specific lons & length of params$deploy_lons
+
+if (length(params$deploy_lons) == 4 & params$deploy_lons[1] == "-160") {
+  cpal <- c("#4E79A7", "#F28E2B", "#76B7B2", "#E15759")
+} else if (length(params$deploy_lons) == 3 & params$deploy_lons[1] == "-150") {
+  cpal <- c("#F28E2B", "#76B7B2", "#E15759")
+} else {
+  # otherwise, assign colors by n = deploy_lons
+  pal <- ggthemes::ggthemes_data[["tableau"]][["color-palettes"]][["regular"]][[1]]$value 
+
+  color.gradient <- function(x, colors = pal, colsteps = length(params$deploy_lons)) {
+    return(colorRampPalette(colors)(colsteps)[findInterval(x, seq(min(x), max(x), length.out = colsteps))])
+  }
+  cpal <- color.gradient(1:length(params$deploy_lons))
+}
+
+```
+
+```{r extract-xy-from-rasters}
+
+xtract_df_long <- get_timeseries(rasIn = ras, pts2extract = xy, subset_dt = getZ(ras)) %>%
+  mutate(lon = ceiling(lon))
+
+```
+
+```{r set-timeseries-dt-interval}
+if(params$interval == 'daily'){
+    df <- xtract_df_long %>% 
+          mutate(ID = str_c(abs(lon), '°W')) 
+    
+} else if(params$interval == 'weekly'){
+    
+    df <- xtract_df_long %>%
+        mutate(end_of_week = ceiling_date(date, "week") %>% as.Date(.)) %>%
+        group_by(end_of_week, ID, lon, lat) %>%
+        summarize(value = mean(value, na.rm = TRUE), .groups = "drop") %>%
+        rename('date' = 'end_of_week')
+}
+
+```
+
+```{r save-rds, eval=params$save_rds}
+# saveRDS(df, file="../data/weekly_sst_df.rds")
+saveRDS(df, file=here("data","weekly_sst_df.rds"))
+
+```
+
+```{r subset-start-date-ts}
+# save full df as backup
+df_full <- df
+
+df <- df %>%
+  # filter(date >= '2023-05-01')
+  filter(date >= '2023-07-01')
+
+```
+
+```{r ggplot-xy-timeseries}
+# plot 
+p_sst_ts <- plot_timeseries(data = df %>% 
+                              mutate(ID = str_c(abs(ceiling(lon)), ' W')), 
+                             cpal = cpal, ylimits = c(6,24), ybreaks = seq(6,24, by = 2)) +
+    # add 18C isobar
+    geom_rect(aes(ymin = 17.9, ymax = 18.1,
+                            xmin = date[1], xmax = date[length(date)]), fill='gray10',
+            alpha = 0.15, inherit.aes = FALSE) +
+
+  add_xWeeks_scale(data = df, brks = 14) +  # brks = n days
+  
+  scale_colour_manual(values=cpal, name = "Longitude ( W)") +
+  labs(x="Date", y="Sea surface temperature (°C)") +
+  add_theme()
+    # NULL
+
+```
+
+```{r add-clims, eval=params$add_clim}
+# load clim rds
+# longterm_sst_mday_df <- readRDS(file='../data/longterm_sst_mday_df.rds')
+# longterm_avgs <- readRDS(file='../data/longterm_avgs_sst_mday.rds')
+longterm_avgs <- readRDS(file=here('data','longterm_avgs_sst_mday.rds'))
+# source('add_clims.R')
+
+longterm_df <- df %>%
+  select(c("ID", "lon", "lat", "date")) %>%
+  mutate(month = month(date),
+         lon = ceiling(lon),
+         lonID = str_c(abs(lon), '°W')) %>%
+  left_join(., longterm_avgs, by =c('ID', 'month')) %>%
+  rename("value" = "longterm_avg") 
+
+longterm_df_formatted <- longterm_df %>%
+  mutate(ID = str_c(abs(lon), ' W')) %>%
+  mutate(ID = as.factor(ID))
+
+
+
+## plot
+ylimits <- c(floor(min(longterm_df_formatted$value)), ceiling(max(df$value)))
+ybreaks <- seq(ylimits[1], ylimits[2], 2)
+
+p_longterm_sst_ts <-  p_sst_ts + 
+  # geom_hline(yintercept = 17, linetype = 2, colour = "black") +
+  geom_line(data = longterm_df_formatted, aes(group = ID, color = factor(lon)), linewidth = 1, alpha = 0.5) + 
+  scale_colour_manual(values=cpal, name = "Longitude (°W)") +
+  labs(x="Date", y="Sea surface temperature (°C)") +
+  
+  scale_y_continuous(limits=ylimits, breaks=ybreaks) +
+  
+  theme(legend.position = "none") +
+  facet_wrap(~ID, ncol=1#)
+             , scales='free')
+
+# ggplotly(p_longterm_sst_ts, tooltip = "text")
+
+```
+
+```{r}
+title = '' #str_c("\nAverage", str_to_title(params$interval), str_to_upper(params$eov), "along shipping route \n", sep = " ")
+subtitle = '' #str_c(str_to_upper(params$eov), "colors correspond to color locations on map for near real-time SST (darker dotted-line) \nand long-term climatology (lighter solid line)", sep = " ")
+  
+sst_plot <- p_longterm_sst_ts +
+  labs(
+    title = title,
+    subtitle = subtitle,
+    caption = "Source:\nNOAA Coral Reef Watch, 5-km Daily SST (weekly averages) and Monthly SST (long-term averages)",
+    x = "Date", y = str_c(str_to_upper(params$eov), " (", params$eov_unit, ")\n", sep = ""),
+    colour = "Longitude (°W)"
+  )
+
+
+```
+
+```{r add-sst-raster, eval=params$add_sst_map}
+library(raster)
+library(leaflet)
+library(leaflet.extras2)
+
+# get most recent daily sst raster. subtract enddate by 1 since in NZ time
+# enddate_ras = subset(ras, which(getZ(ras) == (params$enddate - 1)))
+enddate_ras = subset(ras, which(getZ(ras) == (params$enddate)))
+# pal_rev <- colorNumeric(c("#2c7bb6","#abd9e9","#ffffbf","#fdae61", "#d7191c"), values(enddate_ras), reverse = FALSE, na.color = "transparent")
+
+smooth_rainbow <- khroma::colour("smooth rainbow")
+limits <- c(5, 35)
+cpal <- c(smooth_rainbow(length(seq(floor(limits[1]), ceiling(limits[2]), 1)), range = c(0, 0.9)))
+
+# pal_rev <- colorNumeric(c("#2c7bb6","#abd9e9","#ffffbf","#fdae61", "#d7191c"), values(enddate_ras), reverse = FALSE, na.color = "transparent")
+pal_rev <- colorNumeric(cpal[14:length(cpal)], values(enddate_ras), reverse = FALSE, na.color = "transparent")
+
+
+ras_contour_18C = rasterToContour(enddate_ras, levels=18)
+
+coords_18C <- ras_contour_18C %>% 
+  as(., "SpatialPointsDataFrame") %>%
+  as.data.frame(as(., "SpatialPointsDataFrame"))
+
+df_18C <- data.frame(group = c("18"),
+                 lat = coords_18C$coords.x2,
+                 lng = coords_18C$coords.x1,
+                 lng360 = make360(coords_18C$coords.x1)) %>%
+      filter(lng360 > 181.0)
+
+```
+
+```{r plot-map}
+# Plot leaflet with sst, but without deploy lons (n=4) and estimated shipping route
+fig_top <- get_npac_map(xy, lon_type='360', add_deploy_lons=TRUE, cpal, col_borders=TRUE) %>% 
+  addProviderTiles("Esri.WorldImagery", group = "ESRI World Imagery") |>
+  # addProviderTiles("Esri.WorldPhysical", group = "ESRI OpenStreetMap") |>
+  # addPolylines(
+  #   data = xy,
+  #   lng = ~y, 
+  #   lat = ~x,
+  #   weight = 3,
+  #   opacity = 3,
+  #   color = 'azure4'
+  # ) |>
+  addScaleBar(position = "bottomleft", options = scaleBarOptions()) |>
+  addMapInset()
+
+# Add SST daily raster to map
+if(params$add_sst_map){
+  map <- fig_top %>%
+    addRasterImage(enddate_ras, colors = pal_rev, opacity = 0.8) %>%
+    addLegend('topright',
+              pal = pal_rev,
+              values = values(enddate_ras),
+              # values = seq(6,36,2),
+              position = "topright",
+              title = "SST (°C)",
+              labFormat = labelFormat(transform = function(x) sort(x, decreasing = FALSE))) 
+  #Add the contour lines as lines on the map
+  map <- addCircleMarkers(map, data = df_18C, lng = ~lng360, lat = ~lat, 
+                          label = "18 degrees C SST isotherm",
+                          labelOptions = labelOptions(noHide = F, direction = "bottom",
+                                                style = list(
+
+                                                  "box-shadow" = "3px 3px rgba(0,0,0,0.25)",
+                                                  "font-size" = "12px",
+                                                  "border-color" = "rgba(0,0,0,0.5)"
+                                                )),
+                          group = ~group, color = "gray10", radius = 1.5) #%>%
+    # addPolylines(
+    # data = df_17C,
+    # lng = ~lng360, 
+    # lat = ~lat,
+    # weight = 1,
+    # opacity = 3,
+    # color = 'gray10',label = "17 deg C SST isotherm"
+    # )
+  
+  map <- map %>%
+    addRectangles(
+      lng1 = 225, lat1 = 25,
+      lng2 = 243, lat2 = 35, stroke = TRUE, weight = 3,
+      color = "white", label = "Thermal Corridor Area",
+      labelOptions = labelOptions(noHide = F, direction = "bottom",
+                                                style = list(
+
+                                                  "box-shadow" = "3px 3px rgba(0,0,0,0.25)",
+                                                  "font-size" = "12px",
+                                                  "border-color" = "rgba(0,0,0,0.5)"
+                                                )),
+      fillColor = "transparent"
+    )
+
+} else {
+map <- fig_top
+}
+
+
+
+```
+
+```{r add-actual-ship-route}
+
+## Add actual shipping route onto fig_top map
+actual_ship_2023 <- read.csv(here('data','ship_in_situ_info_2023.csv'), sep=',') %>% # fyi, had to open in text-edit and hit return to add blank line in next row
+  mutate(date = lubridate::ymd(date),
+         lat_deg = ifelse(lat > 0, str_c(round(lat,2), ' °N'), str_c(round(lat,2), ' °S')),
+         lon_deg = ifelse(make180(lon) < 0, str_c(abs(round(make180(lon),2)), ' °W'),str_c(round(lon,2), ' °E')) 
+         )
+
+## Add actual shipping route onto fig_top map
+actual_ship_2024 <- read.csv(here('data','ship_in_situ_info_2024.csv'), sep=',') %>% # fyi, had to open in text-edit and hit return to add blank line in next row
+  mutate(date = lubridate::ymd(date),
+         lat_deg = ifelse(lat > 0, str_c(round(lat,2), ' °N'), str_c(round(lat,2), ' °S')),
+         lon_deg = ifelse(make180(lon) < 0, str_c(abs(round(make180(lon),2)), ' °W'),str_c(round(lon,2), ' °E')) 
+         )
+
+
+# sort this out later...
+if(year(params$enddate) == 2024){
+  actual_ship <- actual_ship_2024
+}
+
+```
+
+
+```{r plot-actual-ship-route}
+
+# pull most recent location (last row)
+recent_loc <- nrow(actual_ship)
+
+
+# pull latest SST at ship route loc
+xtract_sst_recent_loc <- get_timeseries(rasIn = enddate_ras, 
+                                        pts2extract = tibble(x=actual_ship_2023$lon[nrow(actual_ship_2023)],y=actual_ship_2023$lat[nrow(actual_ship_2023)]), subset_dt = getZ(enddate_ras)) %>%
+                                        mutate(lon = ceiling(lon))
+
+
+
+# make marker labels
+# 2023 shipping labels
+actual_ship_labels_2023 <- sprintf(
+  "<strong> Date: %s</strong><br/><strong>Lat: %s </strong><br/> <strong>Lon: %s </strong><br/><strong>SST: %s °C</strong>",
+  actual_ship_2023$date, actual_ship_2023$lat_deg, actual_ship_2023$lon_deg, actual_ship_2023$insitu_sst
+) %>% lapply(htmltools::HTML)
+
+# current (2024) shipping labels
+actual_ship_labels <- sprintf(
+  "<strong> Date: %s</strong><br/><strong>Lat: %s </strong><br/> <strong>Lon: %s </strong><br/><strong>SST: %s °C</strong>",
+  actual_ship$date, actual_ship$lat_deg, actual_ship$lon_deg, actual_ship$insitu_sst
+) %>% lapply(htmltools::HTML)
+
+
+release_loc_label_2023 <- sprintf(
+  "<strong>Location of 2003<br></strong><strong> Turtle Release <br></strong><strong><br>Date: %s</strong><br/><strong>Lat: %s </strong><br/> <strong>Lon: %s </strong><br/><strong>SST: %s °C</strong>",
+  actual_ship_2023$date, actual_ship_2023$lat_deg, actual_ship_2023$lon_deg, actual_ship_2023$insitu_sst
+) %>% lapply(htmltools::HTML)
+
+
+# release_loc_label <- sprintf(
+#   "<strong>Location of 2003<br></strong><strong> Turtle Release <br></strong><strong><br>Date: %s</strong><br/><strong>Lat: %s </strong><br/> <strong>Lon: %s </strong><br/><strong>SST: %s °C</strong>",
+#   actual_ship$date, actual_ship$lat_deg, actual_ship$lon_deg, actual_ship$insitu_sst
+# ) %>% lapply(htmltools::HTML)
+
+# make ship icon
+# ship_icon_2023 <- makeAwesomeIcon(icon= 'ship', markerColor = 'lightgreen', iconColor = 'white', library = "fa")
+# ship_icon_2023 <- makeAwesomeIcon(icon= 'location-dot', markerColor = 'lightgreen', iconColor = 'white', library = "fa", spin = TRUE)
+ship_icon_2023 <-icons <- awesomeIcons(
+  icon = 'ios-close',
+  iconColor = 'black',
+  library = 'ion',
+  markerColor = 'green'
+)
+# 
+# ship_icon_2023 <- makeIcon(
+#   iconUrl = "http://leafletjs.com/examples/custom-icons/leaf-green.png",
+#   iconWidth = 38, iconHeight = 95,
+#   iconAnchorX = 22, iconAnchorY = 94,
+#   shadowUrl = "http://leafletjs.com/examples/custom-icons/leaf-shadow.png",
+#   shadowWidth = 50, shadowHeight = 64,
+#   shadowAnchorX = 4, shadowAnchorY = 62
+# )
+
+# ship_icon_2023 <- fontawesome::fa('fas fa-location-dot',height='60px',fill='lightgreen', fill_opacity=0.65)
+ship_icon_2024 <- makeAwesomeIcon(icon= 'ship', markerColor = 'lightgreen', iconColor = 'white', library = "fa")
+
+ship_icon <- ship_icon_2024
+release_loc_label <- release_loc_label_2023
+
+# determine closest location of 2023 (previous year's_ shipping route to the latest location for 2024
+corresp_ship_coords_2023_idx <- which(abs(actual_ship_2023$lon - actual_ship_2024$lon[recent_loc]) == min(abs(actual_ship_2023$lon - actual_ship_2024$lon[recent_loc])))
+
+
+map <- map %>%
+  
+  # add 2023 route
+    addPolylines(
+    data = actual_ship_2023[1:corresp_ship_coords_2023_idx,],
+    lng = ~lon,
+    lat = ~lat,
+    weight = 3,
+    opacity = 3,
+    label = "2023 Shipping Route",
+    color = 'green'
+  ) |>
+  # add 2023 circle markers
+  addCircleMarkers(lng = actual_ship_2023$lon[1:corresp_ship_coords_2023_idx], lat = actual_ship_2023$lat[1:corresp_ship_coords_2023_idx], 
+                   color = 'green',radius = 6, weight=1.5, label=actual_ship_labels_2023[1:corresp_ship_coords_2023_idx],
+                   labelOptions = labelOptions(noHide = F, 
+                                               direction = "bottom",
+                                               style = list(
+
+                                                  "box-shadow" = "3px 3px rgba(0,0,0,0.25)",
+                                                  "font-size" = "12px",
+                                                  "border-color" = "rgba(0,0,0,0.5)"
+                                                ))
+                   ) |>
+  
+  # add 2024 route
+  addPolylines(
+    data = actual_ship,
+    lng = ~lon,
+    lat = ~lat,
+    weight = 3,
+    opacity = 3,
+    label = "2024 Shipping Route",
+    color = 'lightgreen'
+  ) |>
+  addCircleMarkers(lng = actual_ship$lon, lat = actual_ship$lat, color = 'white',radius = 6, weight=1.5, label=actual_ship_labels,
+                   labelOptions = labelOptions(noHide = F, direction = "bottom",
+                                                style = list(
+
+                                                  "box-shadow" = "3px 3px rgba(0,0,0,0.25)",
+                                                  "font-size" = "12px",
+                                                  "border-color" = "rgba(0,0,0,0.5)"
+                                                ))
+                   ) |>
+  # add 2023 release location 
+    addAwesomeMarkers(lng = actual_ship_2023$lon[nrow(actual_ship_2023)], lat = actual_ship_2023$lat[nrow(actual_ship_2023)], 
+                    icon=ship_icon_2023,
+                    # label=actual_ship_labels[recent_loc],
+                    label=release_loc_label_2023[nrow(actual_ship_2023)],
+                    labelOptions = labelOptions(noHide = F, direction = "bottom",
+                                                style = list(
+
+                                                  "box-shadow" = "3px 3px rgba(0,0,0,0.25)",
+                                                  "font-size" = "12px",
+                                                  "border-color" = "rgba(0,0,0,0.5)"
+                                                ))
+                    ) |>
+  # add 2024 release location
+  addAwesomeMarkers(lng = actual_ship$lon[recent_loc], lat = actual_ship$lat[recent_loc], 
+                    icon=ship_icon_2024,
+                    label=actual_ship_labels[recent_loc],
+                    # label=release_loc_label[recent_loc],
+                    labelOptions = labelOptions(noHide = F, direction = "bottom",
+                                                style = list(
+
+                                                  "box-shadow" = "3px 3px rgba(0,0,0,0.25)",
+                                                  "font-size" = "12px",
+                                                  "border-color" = "rgba(0,0,0,0.5)"
+                                                ))
+                    ) 
+```
+
+```{r}
+# library(plotly)
+# p_insitu_sst <- 
+#   ggplot(data = actual_ship %>% drop_na(), aes(lon, insitu_sst, group = 1, text = 
+#   str_c('Date: ', date,
+#         '\nLat: ', round(lat, 2), " N",
+#         '</br>Lon: ', ifelse(make180(lon) < 0, str_c(abs(round(make180(lon),2)), ' W'), str_c(round(lon,2), ' E')), 
+#         '</br>SST: ', insitu_sst, " C"))) +
+#   geom_point(aes(x=lon, y=insitu_sst), color = 'darkseagreen4', size = 3) +
+#   geom_line(aes(x=lon, y=insitu_sst),color = 'darkseagreen4', linewidth = 1) +
+#   
+#   scale_y_continuous(limits=c(12,27), breaks=seq(12,26,2)) +
+#   scale_x_longitude(xmin=120, xmax=245, step=10) +
+#   
+#   geom_rect(aes(ymin = 18.0, ymax = 18.1,
+#                 xmin = 140, xmax = 255), fill='black',
+#             alpha = 1, inherit.aes = FALSE) +
+# 
+#   theme_minimal() +
+#   theme(legend.position = "none",
+#         axis.text.x=element_text(size=12),
+#         axis.text.y=element_text(size=12),
+#         axis.title = element_text(size = 12)
+#         ) + 
+#   labs(x="Longitude", y = " SST (degrees C)\n")
+# 
+# 
+# p<- ggplotly(p_insitu_sst,tooltip = list("text"))
+# 
+# fig_2 <- p
+```
+
+```{r fig-bottom}
+fig_bottom <- sst_plot +
+  theme(
+    strip.text = element_text(face = "bold", size = rel(1)),
+    strip.background = element_rect(fill = NA, colour = "azure")
+    # strip.background = element_rect(fill=NA),
+    # strip.text = element_text(face="bold")
+  )
+
+# fig_bottom <- ggplotly(sst_plot, tooltip = c("text")) 
+
+```
+
+<br>
+
+```{r run-daily-ssta-script}
+source(here("code", "add_daily_ssta_map_pre_cohort2_release.R"))
+```
+
+```{r xtract-ssta-anoms-release-loc}
+# pull most recent location (last row)
+recent_loc <- nrow(actual_ship)
+
+
+# pull latest SSTA at ship route loc
+xtract_ssta_recent_loc_enddate <- get_timeseries(rasIn = enddate_ras_ssta, 
+                                                     pts2extract = tibble(x=actual_ship_2023$lon[nrow(actual_ship_2023)],y=actual_ship_2023$lat[nrow(actual_ship_2023)]), subset_dt = getZ(enddate_ras)) %>%
+  mutate(lon = ceiling(lon))
+
+
+xtract_ssta_recent_loc_previous_dt <- get_timeseries(rasIn = previous_dt_ras_ssta, 
+                                        pts2extract = tibble(x=actual_ship_2023$lon[nrow(actual_ship_2023)],y=actual_ship_2023$lat[nrow(actual_ship_2023)]), subset_dt = getZ(enddate_ras)) %>%
+  mutate(lon = ceiling(lon))
+
+```
+
+
+### **Figure 1) Current SST, SSTA Conditions and Shipping Route Information.** 
+
+<br>
+
+#### [The tabs below show the daily 5km SST and SST anomalies (SSTA) for **`r getZ(enddate_ras)`**. ]{style="font-size: 14pt"} 
+
+#### [Current conditions are based on the latest remotely sensed data from [NOAA Coral Reef Watch](https://coralreefwatch.noaa.gov/product/5km/index_5km_sst.php). For comparison, the SSTA conditions are also shown for exactly 1 year prior (`r getZ(enddate_ras) - 366`).]{style="font-size: 14pt"}<br><br>
+
+#### [The [**light green lines and ship icon represent the 2024 route**]{style="color:#59a14f"} for the ship of opportunity]{style="font-size: 14pt"}. 
+#### [For comparison, the [**dark green lines represent the location the 2023 shipping route**]{style="color:darkgreen"}. The [dark green icon]{style="color:#31572c"} represents the location of turtle release on July 10, 2023]{style="font-size: 14pt"}. <br><br>
+
+#### [**The current SST at last year's release location is:** **`r xtract_sst_recent_loc$val`°C** ]{style="font-size: 14pt; color:#16697a"}. [This 2024 SST value is [**`r xtract_ssta_recent_loc_enddate$val`°C** warmer]{style="color:#E15759"} than the long-term average.]{style="font-size: 14pt"}
+
+#### [In 2023, SSTs at the release location were **`r xtract_ssta_recent_loc_previous_dt$val`°C** warmer than the long-term average.]{style="font-size: 14pt"}<br><br>
+
+#### [The 4 circles represent longitudes of interest across the eastern North Pacific Ocean. Figure 2 shows a time series of SST conditions at these 4 longitudes.]{style="font-size: 14pt"} [Black lines represent the **18°C** isotherm. The Thermal Corridor area is outlined in white.<br><br>]{style="font-size: 14pt"}
+
+
+
+### {.tabset .tabset-pills}
+
+#### Current SST Conditions: 2024
+```{r plot-top-map, fig.height= 2, fig.width = 4, fig.align="center"}
+# fig_top 
+map
+```
+
+<br>
+
+
+
+#### Current SST Anomalies: 2024
+```{r plot-top-map-ssta-2024, fig.height= 2, fig.width = 4, fig.align="center"}
+map_ssta_w_long_cohort1_markers_enddate |>
+  
+  # add 2023 route
+    addPolylines(
+    data = actual_ship_2023[1:corresp_ship_coords_2023_idx,],
+    lng = ~lon,
+    lat = ~lat,
+    weight = 3,
+    opacity = 3,
+    label = "2023 Shipping Route",
+    color = 'green'
+  ) |>
+  # add 2023 circle markers
+  addCircleMarkers(lng = actual_ship_2023$lon[1:corresp_ship_coords_2023_idx], lat = actual_ship_2023$lat[1:corresp_ship_coords_2023_idx], 
+                   color = 'green',radius = 6, weight=1.5, label=actual_ship_labels_2023[1:corresp_ship_coords_2023_idx],
+                   labelOptions = labelOptions(noHide = F, 
+                                               direction = "bottom",
+                                               style = list(
+
+                                                  "box-shadow" = "3px 3px rgba(0,0,0,0.25)",
+                                                  "font-size" = "12px",
+                                                  "border-color" = "rgba(0,0,0,0.5)"
+                                                ))
+                   ) |>
+  
+  # add 2024 route
+  addPolylines(
+    data = actual_ship_2024,
+    lng = ~lon,
+    lat = ~lat,
+    weight = 3,
+    opacity = 3,
+    label = "2024 Shipping Route",
+    color = 'lightgreen'
+  ) |>
+  addCircleMarkers(lng = actual_ship$lon, lat = actual_ship$lat, color = 'white',radius = 6, weight=1.5, label=actual_ship_labels,
+                   labelOptions = labelOptions(noHide = F, direction = "bottom",
+                                                style = list(
+
+                                                  "box-shadow" = "3px 3px rgba(0,0,0,0.25)",
+                                                  "font-size" = "12px",
+                                                  "border-color" = "rgba(0,0,0,0.5)"
+                                                ))
+                   ) |>
+  # add 2023 release location 
+    addAwesomeMarkers(lng = actual_ship_2023$lon[nrow(actual_ship_2023)], lat = actual_ship_2023$lat[nrow(actual_ship_2023)], 
+                    icon=ship_icon_2023,
+                    # label=actual_ship_labels[recent_loc],
+                    label=release_loc_label_2023[nrow(actual_ship_2023)],
+                    labelOptions = labelOptions(noHide = F, direction = "bottom",
+                                                style = list(
+
+                                                  "box-shadow" = "3px 3px rgba(0,0,0,0.25)",
+                                                  "font-size" = "12px",
+                                                  "border-color" = "rgba(0,0,0,0.5)"
+                                                ))
+                    ) |>
+  # add 2024 release location
+  addAwesomeMarkers(lng = actual_ship$lon[recent_loc], lat = actual_ship$lat[recent_loc], 
+                    icon=ship_icon_2024,
+                    label=actual_ship_labels[recent_loc],
+                    # label=release_loc_label[recent_loc],
+                    labelOptions = labelOptions(noHide = F, direction = "bottom",
+                                                style = list(
+
+                                                  "box-shadow" = "3px 3px rgba(0,0,0,0.25)",
+                                                  "font-size" = "12px",
+                                                  "border-color" = "rgba(0,0,0,0.5)"
+                                                ))
+                    ) 
+
+```
+
+<br>
+
+#### Previous Year's SST Anomalies: 2023
+```{r plot-top-map-ssta-2023, fig.height= 2, fig.width = 4, fig.align="center"}
+map_ssta_w_long_cohort1_markers_previous_dt |>
+  
+  # add 2023 route
+    addPolylines(
+    data = actual_ship_2023[1:corresp_ship_coords_2023_idx,],
+    lng = ~lon,
+    lat = ~lat,
+    weight = 3,
+    opacity = 3,
+    label = "2023 Shipping Route",
+    color = 'green'
+  ) |>
+  # add 2023 circle markers
+  addCircleMarkers(lng = actual_ship_2023$lon[1:corresp_ship_coords_2023_idx], lat = actual_ship_2023$lat[1:corresp_ship_coords_2023_idx], 
+                   color = 'green',radius = 6, weight=1.5, label=actual_ship_labels_2023[1:corresp_ship_coords_2023_idx],
+                   labelOptions = labelOptions(noHide = F, 
+                                               direction = "bottom",
+                                               style = list(
+
+                                                  "box-shadow" = "3px 3px rgba(0,0,0,0.25)",
+                                                  "font-size" = "12px",
+                                                  "border-color" = "rgba(0,0,0,0.5)"
+                                                ))
+                   ) |>
+  
+  # add 2024 route
+  addPolylines(
+    data = actual_ship_2024,
+    lng = ~lon,
+    lat = ~lat,
+    weight = 3,
+    opacity = 3,
+    label = "2024 Shipping Route",
+    color = 'lightgreen'
+  ) |>
+  addCircleMarkers(lng = actual_ship$lon, lat = actual_ship$lat, color = 'white',radius = 6, weight=1.5, label=actual_ship_labels,
+                   labelOptions = labelOptions(noHide = F, direction = "bottom",
+                                                style = list(
+
+                                                  "box-shadow" = "3px 3px rgba(0,0,0,0.25)",
+                                                  "font-size" = "12px",
+                                                  "border-color" = "rgba(0,0,0,0.5)"
+                                                ))
+                   ) |>
+  # add 2023 release location 
+    addAwesomeMarkers(lng = actual_ship_2023$lon[nrow(actual_ship_2023)], lat = actual_ship_2023$lat[nrow(actual_ship_2023)], 
+                    icon=ship_icon_2023,
+                    # label=actual_ship_labels[recent_loc],
+                    label=release_loc_label_2023[nrow(actual_ship_2023)],
+                    labelOptions = labelOptions(noHide = F, direction = "bottom",
+                                                style = list(
+
+                                                  "box-shadow" = "3px 3px rgba(0,0,0,0.25)",
+                                                  "font-size" = "12px",
+                                                  "border-color" = "rgba(0,0,0,0.5)"
+                                                ))
+                    ) |>
+  # add 2024 release location
+  addAwesomeMarkers(lng = actual_ship$lon[recent_loc], lat = actual_ship$lat[recent_loc], 
+                    icon=ship_icon_2024,
+                    label=actual_ship_labels[recent_loc],
+                    # label=release_loc_label[recent_loc],
+                    labelOptions = labelOptions(noHide = F, direction = "bottom",
+                                                style = list(
+
+                                                  "box-shadow" = "3px 3px rgba(0,0,0,0.25)",
+                                                  "font-size" = "12px",
+                                                  "border-color" = "rgba(0,0,0,0.5)"
+                                                ))
+                    ) 
+```
+
+<br>
+
+<!-- ### **Figure 2) Daily ship-based SST measurements.** -->
+
+<!-- #### <span style="font-size: 14pt"> <span style="color:green">Daily SST measurements</span> recorded on the ship. The black horizontal line at 17°C is a reference for optimal temperatures during turtle release.</span> -->
+
+<!-- #### <span style="font-size: 14pt"> Use the mouse to hover over each data point for detailed information.</span> -->
+
+```{r insitu-ggplot, fig.height=1.5, fig.width=4}
+# fig_2
+
+```
+
+### {-}
+
+<br>
+
+
+### **Figure 2) Average SST time series.**
+
+#### [Weekly and long-term average sea surface temperatures at 4 longitudes in the eastern North Pacific (160W, 150W, 145W, 140W).<br>]{style="font-size: 14pt"}
+
+#### [For each longitude, the darker lines with circles represent the weekly SST average since 2023.]{style="font-size: 14pt"}
+
+#### [To compare the current SST values (2023-present) with the long-term average for the same time period, the lighter solid lines represent the long-term monthly SST averages between 1997-2022.]{style="font-size: 14pt"}
+
+#### [The black horizontal line at 18°C was used as a reference for optimal temperatures during turtle release.]{style="font-size: 14pt"}
+
+
+<!-- <div class="superbigimage"> -->
+```{r, fig.height= 10.5}
+fig_bottom
+```
+<!-- </div> -->
+
+<!-- Source:\nNOAA Coral Reef Watch, 5-km Daily SST (weekly averages) and Monthly SST (long-term averages) -->
+
+```{r}
+print(str_c('publish date-time: ', Sys.time(), ' ', Sys.timezone()))
+```
+

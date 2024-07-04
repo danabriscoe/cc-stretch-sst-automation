@@ -104,6 +104,7 @@ pal_rev_ssta <- colorNumeric(cpal_ssta[1:length(cpal_ssta)], values(enddate_ras_
 #### ----{r plot-ssta-map}
 # Plot leaflet with sst, but without deploy lons (n=4) and estimated shipping route
 fig_top_ssta <- get_npac_map(xy, lon_type='360', add_deploy_lons=TRUE, cpal_ssta, col_borders=TRUE) %>% 
+  addProviderTiles("Esri.WorldImagery", group = "ESRI World Imagery") |>
   # addPolylines(
   #   data = xy,
   #   lng = ~y, 
@@ -112,7 +113,8 @@ fig_top_ssta <- get_npac_map(xy, lon_type='360', add_deploy_lons=TRUE, cpal_ssta
   #   opacity = 3,
   #   color = 'azure4'
   # ) |>
-  addScaleBar(position = "bottomleft", options = scaleBarOptions())
+  addScaleBar(position = "bottomleft", options = scaleBarOptions()) |>
+  addMapInset()
 
 # Add SST daily raster to map
 if(params$add_sst_map){
@@ -120,7 +122,8 @@ if(params$add_sst_map){
     addRasterImage(enddate_ras_ssta, colors = pal_rev_ssta, opacity = 0.8) %>%
     addLegend('topright',
               pal = pal_rev_ssta,
-              values = values(enddate_ras_ssta),
+              # values = values(enddate_ras_ssta),
+              values = seq(-4,8,2),
               position = "topright",
               title = "SSTA (°C)",
               labFormat = labelFormat(transform = function(x) sort(x, decreasing = FALSE))) 
@@ -145,7 +148,8 @@ if(params$add_sst_map){
     addRasterImage(previous_dt_ras_ssta, colors = pal_rev_ssta, opacity = 0.8) %>%
     addLegend('topright',
               pal = pal_rev_ssta,
-              values = values(previous_dt_ras_ssta),
+              # values = values(previous_dt_ras_ssta),
+              values = seq(-4,8,2),
               position = "topright",
               title = "SSTA (°C)",
               labFormat = labelFormat(transform = function(x) sort(x, decreasing = FALSE))) 
@@ -203,19 +207,19 @@ map_ssta_w_long_cohort1_markers_previous_dt <-
   )
 
 
-# pull most recent location (last row)
-recent_loc <- nrow(actual_ship)
-
-
-# pull latest SSTA at ship route loc
-xtract_ssta_recent_loc_enddate <- get_timeseries(rasIn = enddate_ras_ssta, 
-                                                     pts2extract = tibble(x=actual_ship$lon[recent_loc],y=actual_ship$lat[recent_loc]), subset_dt = getZ(enddate_ras)) %>%
-  mutate(lon = ceiling(lon))
-
-
-xtract_ssta_recent_loc_previous_dt <- get_timeseries(rasIn = previous_dt_ras_ssta, 
-                                        pts2extract = tibble(x=actual_ship$lon[recent_loc],y=actual_ship$lat[recent_loc]), subset_dt = getZ(enddate_ras)) %>%
-  mutate(lon = ceiling(lon))
+# # pull most recent location (last row)
+# recent_loc <- nrow(actual_ship)
+# 
+# 
+# # pull latest SSTA at ship route loc
+# xtract_ssta_recent_loc_enddate <- get_timeseries(rasIn = enddate_ras_ssta, 
+#                                                      pts2extract = tibble(x=actual_ship$lon[recent_loc],y=actual_ship$lat[recent_loc]), subset_dt = getZ(enddate_ras)) %>%
+#   mutate(lon = ceiling(lon))
+# 
+# 
+# xtract_ssta_recent_loc_previous_dt <- get_timeseries(rasIn = previous_dt_ras_ssta, 
+#                                         pts2extract = tibble(x=actual_ship$lon[recent_loc],y=actual_ship$lat[recent_loc]), subset_dt = getZ(enddate_ras)) %>%
+#   mutate(lon = ceiling(lon))
 
            
 ##
