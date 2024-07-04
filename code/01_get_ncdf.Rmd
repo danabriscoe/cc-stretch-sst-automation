@@ -10,7 +10,8 @@ params:
   varname: "CRW_SST"
   dataset_ID: "dhw_5km"
   enddate: !r Sys.Date() - 2
-  startdate: !r params$enddate - 30
+  # startdate: !r params$enddate - 30
+  startdate: "2023-07-11"
   timestep: "daily"
   nc_path: "/Users/briscoedk/dbriscoe@stanford.edu - Google Drive/My Drive/ncdf/deploy_reports"
   bbox: !r tibble::tibble(ymin=20, ymax=50,xmin=-180, xmax=-110)
