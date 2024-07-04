@@ -327,6 +327,7 @@ if(params$add_sst_map){
     addLegend('topright',
               pal = pal_rev,
               values = values(enddate_ras),
+              # values = seq(6,36,2),
               position = "topright",
               title = "SST (°C)",
               labFormat = labelFormat(transform = function(x) sort(x, decreasing = FALSE))) 
@@ -647,7 +648,6 @@ map
 ### {-}
 
 <br>
-
 
 
 ### **Figure 2) Average SST time series.**
