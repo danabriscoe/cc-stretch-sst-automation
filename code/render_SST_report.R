@@ -26,7 +26,7 @@ render_SST_timeseries = function(eov, eov_unit,
                                  # enddate, startdate,
                                  nc_path) {
   rmarkdown::render(
-    # "../code/02_plot_SST_ts.Rmd",
+    ## "../code/02_plot_SST_ts.Rmd",
     # "../code/02_plot_SST_ts_with_18C_isotherm_post_release.Rmd",
     # here::here("code","02_plot_SST_ts_with_18C_isotherm_pre_cohort2_release.Rmd"),
     here::here("code","02_plot_SST_ts_with_18C_isotherm_cohort2_actual_route.Rmd"),
