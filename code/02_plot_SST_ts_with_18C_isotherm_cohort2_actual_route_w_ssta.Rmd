@@ -422,7 +422,7 @@ xtract_sst_poss_cohort2_loc <- xtract_sst_poss_cohort2_loc %>%
   mutate(value = round(xtract_sst_poss_cohort2_loc$value,2),
          lat =  round(xtract_sst_poss_cohort2_loc$lat,2),
          lon = make360(lon)) %>%
-  mutate(date = '2024-07-08 UTC-11') %>%
+  mutate(date = getZ(enddate_ras)) %>%
   mutate(lat_deg = ifelse(lat > 0, str_c(round(lat,2), ' °N'), str_c(round(lat,2), ' °S')),
          lon_deg = ifelse(make180(lon) < 0, str_c(abs(round(make180(lon),2)), ' °W'),str_c(round(lon,2), ' °E')) )
 
