@@ -40,6 +40,12 @@ ssta_varname <- "ssta_dhw_5km"
 
 ncs_ssta <- list.files(nc_path_ssta, pattern = ssta_varname, full.names=T)
 
+## TEMP SOLUTION FOR SSTA 
+cpy_temp = "ssta_cpy_5km"
+pattern1 = c('ssta_dhw_5km','ssta_cpy_5km')
+ncs_ssta <- list.files(nc_path_ssta, pattern=paste0(pattern1, collapse="|"), full.names=T)
+
+
 ## only for unit testing ---
 fdates_ssta <- ncs_ssta %>% 
   str_split(., "_") %>%
