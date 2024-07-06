@@ -38,7 +38,6 @@ params:
   }
 </style>
 ```
-
 ```{r setup, include=FALSE}
 knitr::opts_chunk$set(
     echo = FALSE,
@@ -398,7 +397,6 @@ if(year(params$enddate) == 2024){
 
 ```
 
-
 ```{r plot-actual-ship-route}
 
 # pull most recent location (last row)
@@ -409,6 +407,24 @@ recent_loc <- nrow(actual_ship)
 xtract_sst_recent_loc <- get_timeseries(rasIn = enddate_ras, 
                                         pts2extract = tibble(x=actual_ship_2023$lon[nrow(actual_ship_2023)],y=actual_ship_2023$lat[nrow(actual_ship_2023)]), subset_dt = getZ(enddate_ras)) %>%
                                         mutate(lon = ceiling(lon))
+
+xtract_sst_recent_loc$value <- round(xtract_sst_recent_loc$value,2)
+
+
+# possible cohort 2 release loc
+# pull latest SST at ship route loc
+xtract_sst_poss_cohort2_loc <- get_timeseries(rasIn = enddate_ras, 
+                                        pts2extract = tibble(x=210.7867,
+                                                             y=39.63334), subset_dt = getZ(enddate_ras)) %>%
+                                        mutate(lon = ceiling(lon)) 
+
+xtract_sst_poss_cohort2_loc <- xtract_sst_poss_cohort2_loc %>%
+  mutate(value = round(xtract_sst_poss_cohort2_loc$value,2),
+         lat =  round(xtract_sst_poss_cohort2_loc$lat,2),
+         lon = make360(lon)) %>%
+  mutate(date = '2024-07-08 UTC-11') %>%
+  mutate(lat_deg = ifelse(lat > 0, str_c(round(lat,2), ' °N'), str_c(round(lat,2), ' °S')),
+         lon_deg = ifelse(make180(lon) < 0, str_c(abs(round(make180(lon),2)), ' °W'),str_c(round(lon,2), ' °E')) )
 
 
 
@@ -421,14 +437,20 @@ actual_ship_labels_2023 <- sprintf(
 
 # current (2024) shipping labels
 actual_ship_labels <- sprintf(
-  "<strong> Date: %s</strong><br/><strong>Lat: %s </strong><br/> <strong>Lon: %s </strong><br/><strong>SST: %s °C</strong>",
+  "<strong> Date: %s</strong><br/><strong>Lat: %s </strong><br/> <strong>Lon: %s </strong><br/><strong>In situ SST: %s °C</strong>",
   actual_ship$date, actual_ship$lat_deg, actual_ship$lon_deg, actual_ship$insitu_sst
 ) %>% lapply(htmltools::HTML)
 
 
 release_loc_label_2023 <- sprintf(
-  "<strong>Location of 2003<br></strong><strong> Turtle Release <br></strong><strong><br>Date: %s</strong><br/><strong>Lat: %s </strong><br/> <strong>Lon: %s </strong><br/><strong>SST: %s °C</strong>",
+  "<strong>Location of 2023<br></strong><strong> Turtle Release <br></strong><strong><br>Date: %s</strong><br/><strong>Lat: %s </strong><br/> <strong>Lon: %s </strong><br/><strong>In situ SST: %s °C</strong>",
   actual_ship_2023$date, actual_ship_2023$lat_deg, actual_ship_2023$lon_deg, actual_ship_2023$insitu_sst
+) %>% lapply(htmltools::HTML)
+
+
+poss_release_loc_label_2024 <- sprintf(
+  "<strong>Location of Possible 2024<br></strong><strong> Turtle Release <br></strong><strong><br>Date: %s</strong><br/><strong>Lat: %s </strong><br/> <strong>Lon: %s </strong><br/><strong>Current SST: %s °C</strong>",
+  xtract_sst_poss_cohort2_loc$date, xtract_sst_poss_cohort2_loc$lat_deg, xtract_sst_poss_cohort2_loc$lon_deg, xtract_sst_poss_cohort2_loc$value
 ) %>% lapply(htmltools::HTML)
 
 
@@ -459,8 +481,19 @@ ship_icon_2023 <-icons <- awesomeIcons(
 # ship_icon_2023 <- fontawesome::fa('fas fa-location-dot',height='60px',fill='lightgreen', fill_opacity=0.65)
 ship_icon_2024 <- makeAwesomeIcon(icon= 'ship', markerColor = 'lightgreen', iconColor = 'white', library = "fa")
 
+poss_release_loc_icon_2024 <-icons <- awesomeIcons(
+  icon = 'ios-close',
+  iconColor = 'black',
+  library = 'ion',
+  markerColor = 'blue'
+)
+
+
+
+
 ship_icon <- ship_icon_2024
 release_loc_label <- release_loc_label_2023
+
 
 # determine closest location of 2023 (previous year's_ shipping route to the latest location for 2024
 corresp_ship_coords_2023_idx <- which(abs(actual_ship_2023$lon - actual_ship_2024$lon[recent_loc]) == min(abs(actual_ship_2023$lon - actual_ship_2024$lon[recent_loc])))
@@ -535,7 +568,23 @@ map <- map %>%
                                                   "font-size" = "12px",
                                                   "border-color" = "rgba(0,0,0,0.5)"
                                                 ))
-                    ) 
+                    ) |>
+  # add poss 2024 release location 
+    addAwesomeMarkers(lng = xtract_sst_poss_cohort2_loc$lon, lat = xtract_sst_poss_cohort2_loc$lat, 
+                    icon=poss_release_loc_icon_2024,
+                    # label=actual_ship_labels[recent_loc],
+                    label=poss_release_loc_label_2024,
+                    labelOptions = labelOptions(noHide = F, direction = "bottom",
+                                                style = list(
+
+                                                  "box-shadow" = "3px 3px rgba(0,0,0,0.25)",
+                                                  "font-size" = "12px",
+                                                  "border-color" = "rgba(0,0,0,0.5)"
+                                                ))
+                    )
+
+
+
 ```
 
 ```{r}
@@ -606,29 +655,32 @@ xtract_ssta_recent_loc_previous_dt <- get_timeseries(rasIn = previous_dt_ras_sst
 
 ```
 
-
-### **Figure 1) Current SST, SSTA Conditions and Shipping Route Information.** 
+### **Figure 1) Current SST, SSTA Conditions and Shipping Route Information.**
 
 <br>
 
-#### [The tabs below show the daily 5km SST and SST anomalies (SSTA) for **`r getZ(enddate_ras)`**. ]{style="font-size: 14pt"} 
+#### [The tabs below show the daily 5km SST and SST anomalies (SSTA) for **`r getZ(enddate_ras)`**.]{style="font-size: 14pt"}
 
 #### [Current conditions are based on the latest remotely sensed data from [NOAA Coral Reef Watch](https://coralreefwatch.noaa.gov/product/5km/index_5km_sst.php). For comparison, the SSTA conditions are also shown for exactly 1 year prior (`r getZ(enddate_ras) - 366`).]{style="font-size: 14pt"}<br><br>
 
-#### [The [**light green lines and ship icon represent the 2024 route**]{style="color:#59a14f"} for the ship of opportunity]{style="font-size: 14pt"}. 
-#### [For comparison, the [**dark green lines represent the location the 2023 shipping route**]{style="color:darkgreen"}. The [dark green icon]{style="color:#31572c"} represents the location of turtle release on July 10, 2023]{style="font-size: 14pt"}. <br><br>
+#### [The [ **light green lines and ship icon represent the 2024 route**]{style="color:#59a14f"} for the ship of opportunity.]{style="font-size: 14pt"}
 
-#### [**The current SST at last year's release location is:** **`r xtract_sst_recent_loc$val`°C** ]{style="font-size: 14pt; color:#16697a"}. [This 2024 SST value is [**`r xtract_ssta_recent_loc_enddate$val`°C** warmer]{style="color:#E15759"} than the long-term average.]{style="font-size: 14pt"}
+#### [For comparison, the [ **dark green lines represent the location the 2023 shipping route**]{style="color:darkgreen"}. The [dark green icon]{style="color:#31572c"} represents the location of turtle release on July 10, 2023.]{style="font-size: 14pt"} <br><br>
 
-#### [In 2023, SSTs at the release location were **`r xtract_ssta_recent_loc_previous_dt$val`°C** warmer than the long-term average.]{style="font-size: 14pt"}<br><br>
+
+#### [**The** [**blue icon represents the 2024 potential release location**]{style="color: #023e8a"} **(39.63°N, 149°W)**. [**The current SST at this location is: **]{style="color: #023e8a"} [**`r xtract_sst_poss_cohort2_loc$val`°C**]{style="color:#E15759"}.]{style="font-size: 14pt"}<br><br> 
+
+
+#### [The current SST at [last year's release location]{style="color:darkgreen"} is: `r xtract_sst_recent_loc$val`°C. This 2024 SST value is **`r xtract_ssta_recent_loc_enddate$val`°C** warmer than the long-term average.]{style="font-size: 14pt"}
+
+#### [In 2023, SSTs at the release location were `r xtract_ssta_recent_loc_previous_dt$val`°C warmer than the long-term average.]{style="font-size: 14pt"}<br><br>
 
 #### [The 4 circles represent longitudes of interest across the eastern North Pacific Ocean. Figure 2 shows a time series of SST conditions at these 4 longitudes.]{style="font-size: 14pt"} [Black lines represent the **18°C** isotherm. The Thermal Corridor area is outlined in white.<br><br>]{style="font-size: 14pt"}
 
-
-
-### {.tabset .tabset-pills}
+###  {.tabset .tabset-pills}
 
 #### Current SST Conditions: 2024
+
 ```{r plot-top-map, fig.height= 2, fig.width = 4, fig.align="center"}
 # fig_top 
 map
@@ -636,9 +688,8 @@ map
 
 <br>
 
-
-
 #### Current SST Anomalies: 2024
+
 ```{r plot-top-map-ssta-2024, fig.height= 2, fig.width = 4, fig.align="center"}
 map_ssta_w_long_cohort1_markers_enddate |>
   
@@ -716,6 +767,7 @@ map_ssta_w_long_cohort1_markers_enddate |>
 <br>
 
 #### Previous Year's SST Anomalies: 2023
+
 ```{r plot-top-map-ssta-2023, fig.height= 2, fig.width = 4, fig.align="center"}
 map_ssta_w_long_cohort1_markers_previous_dt |>
   
@@ -802,26 +854,31 @@ map_ssta_w_long_cohort1_markers_previous_dt |>
 
 ```
 
-### {-}
+###  {.unnumbered}
 
 <br>
 
-
 ### **Figure 2) Average SST time series.**
 
-#### [Weekly and long-term average sea surface temperatures at 4 longitudes in the eastern North Pacific (160W, 150W, 145W, 140W).<br>]{style="font-size: 14pt"}
+#### [Weekly and long-term average sea surface temperatures at 4 longitudes in the eastern North Pacific:]{style="font-size: 14pt"}
 
-#### [For each longitude, the darker lines with circles represent the weekly SST average since 2023.]{style="font-size: 14pt"}
+#### * [ 43°N **160°W**]{style="font-size: 14pt"}
+#### * [ 41°N **150°W**]{style="font-size: 14pt"}
+#### * [ 40°N **145°W**]{style="font-size: 14pt"}
+#### * [ 38°N **140°W**]{style="font-size: 14pt"}<br><br>
+
+#### [For each longitude, the darker lines with circles represent the weekly SST average since 2023.]{style="font-size: 14pt"}<br>
 
 #### [To compare the current SST values (2023-present) with the long-term average for the same time period, the lighter solid lines represent the long-term monthly SST averages between 1997-2022.]{style="font-size: 14pt"}
 
 #### [The black horizontal line at 18°C was used as a reference for optimal temperatures during turtle release.]{style="font-size: 14pt"}
 
-
 <!-- <div class="superbigimage"> -->
+
 ```{r, fig.height= 10.5}
 fig_bottom
 ```
+
 <!-- </div> -->
 
 <!-- Source:\nNOAA Coral Reef Watch, 5-km Daily SST (weekly averages) and Monthly SST (long-term averages) -->
@@ -829,4 +886,3 @@ fig_bottom
 ```{r}
 print(str_c('publish date-time: ', Sys.time(), ' ', Sys.timezone()))
 ```
-
