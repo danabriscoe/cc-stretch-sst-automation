@@ -760,7 +760,21 @@ map_ssta_w_long_cohort1_markers_enddate |>
                                                   "font-size" = "12px",
                                                   "border-color" = "rgba(0,0,0,0.5)"
                                                 ))
-                    ) 
+                    ) |>
+  # add poss 2024 release location 
+    addAwesomeMarkers(lng = xtract_sst_poss_cohort2_loc$lon, lat = xtract_sst_poss_cohort2_loc$lat, 
+                    icon=poss_release_loc_icon_2024,
+                    # label=actual_ship_labels[recent_loc],
+                    label=poss_release_loc_label_2024,
+                    labelOptions = labelOptions(noHide = F, direction = "bottom",
+                                                style = list(
+
+                                                  "box-shadow" = "3px 3px rgba(0,0,0,0.25)",
+                                                  "font-size" = "12px",
+                                                  "border-color" = "rgba(0,0,0,0.5)"
+                                                ))
+                    )
+
 
 ```
 
@@ -838,7 +852,21 @@ map_ssta_w_long_cohort1_markers_previous_dt |>
                                                   "font-size" = "12px",
                                                   "border-color" = "rgba(0,0,0,0.5)"
                                                 ))
-                    ) 
+                    ) |>
+  # add poss 2024 release location 
+    addAwesomeMarkers(lng = xtract_sst_poss_cohort2_loc$lon, lat = xtract_sst_poss_cohort2_loc$lat, 
+                    icon=poss_release_loc_icon_2024,
+                    # label=actual_ship_labels[recent_loc],
+                    label=poss_release_loc_label_2024,
+                    labelOptions = labelOptions(noHide = F, direction = "bottom",
+                                                style = list(
+
+                                                  "box-shadow" = "3px 3px rgba(0,0,0,0.25)",
+                                                  "font-size" = "12px",
+                                                  "border-color" = "rgba(0,0,0,0.5)"
+                                                ))
+                    )
+
 ```
 
 <br>
