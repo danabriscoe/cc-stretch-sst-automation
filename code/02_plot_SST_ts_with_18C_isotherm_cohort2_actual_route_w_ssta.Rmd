@@ -671,7 +671,7 @@ xtract_ssta_recent_loc_previous_dt <- get_timeseries(rasIn = previous_dt_ras_sst
 #### [**The** [**blue icon represents the 2024 potential release location**]{style="color: #023e8a"} **(39.63°N, 149°W)**. [**The current SST at this location is: **]{style="color: #023e8a"} [**`r xtract_sst_poss_cohort2_loc$val`°C**]{style="color:#E15759"}.]{style="font-size: 14pt"}<br><br> 
 
 
-#### [The current SST at [last year's release location]{style="color:darkgreen"} is: `r xtract_sst_recent_loc$val`°C. This 2024 SST value is **`r xtract_ssta_recent_loc_enddate$val`°C** warmer than the long-term average.]{style="font-size: 14pt"}
+#### [The current SST at [last year's release location]{style="color:darkgreen"} is: `r xtract_sst_recent_loc$val`°C. This 2024 SST value is **`r xtract_ssta_recent_loc_enddate$val`°C** warmer than the long-term average.]{style="font-size: 14pt"} <br>[*Note, the 2024 SST anomaly product reflects the daily value as of 2024-07-03, due to server maintenance with Coral Reef Watch over the holiday weekend. However the SST product remains up to date.*]{style="font-size: 12pt"}
 
 #### [In 2023, SSTs at the release location were `r xtract_ssta_recent_loc_previous_dt$val`°C warmer than the long-term average.]{style="font-size: 14pt"}<br><br>
 
