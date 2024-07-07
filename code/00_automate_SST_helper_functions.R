@@ -213,8 +213,8 @@ get_npac_map <- function(xy, lon_type = '360', add_deploy_lons=TRUE, cpal, col_b
   map <- ship_pts |>
     leaflet() |>
     # fitBounds(120, 15, 250, 60) %>%
-    setView(180, 35, zoom = 4) |> # full npac view
-    # setView(210, 32, zoom = 4) |> # epac view
+    # setView(180, 35, zoom = 4) |> # full npac view
+    setView(210, 32, zoom = 4) |> # epac view
     addTiles() |>
     
     ## Turn off/on great circle dots...

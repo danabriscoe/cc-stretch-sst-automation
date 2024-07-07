@@ -661,7 +661,7 @@ xtract_ssta_recent_loc_previous_dt <- get_timeseries(rasIn = previous_dt_ras_sst
 
 #### [The tabs below show the daily 5km SST and SST anomalies (SSTA) for **`r getZ(enddate_ras)`**.]{style="font-size: 14pt"}
 
-#### [Current conditions are based on the latest remotely sensed data from [NOAA Coral Reef Watch](https://coralreefwatch.noaa.gov/product/5km/index_5km_sst.php). For comparison, the SSTA conditions are also shown for exactly 1 year prior (`r getZ(enddate_ras) - 366`).]{style="font-size: 14pt"}<br><br>
+#### [Current conditions are based on the latest remotely sensed data from [NOAA Coral Reef Watch](https://coralreefwatch.noaa.gov/product/5km/index_5km_sst.php) and [GHRSST L4](https://podaac.jpl.nasa.gov/GHRSST). For comparison, the SSTA conditions are also shown for exactly 1 year prior (`r getZ(enddate_ras) - 366`).]{style="font-size: 14pt"}<br><br>
 
 #### [The [ **light green lines and ship icon represent the 2024 route**]{style="color:#59a14f"} for the ship of opportunity.]{style="font-size: 14pt"}
 
