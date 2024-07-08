@@ -411,16 +411,30 @@ xtract_sst_recent_loc <- get_timeseries(rasIn = enddate_ras,
 xtract_sst_recent_loc$value <- round(xtract_sst_recent_loc$value,2)
 
 
-# possible cohort 2 release loc
+# # possible cohort 2 release loc
+# # pull latest SST at ship route loc
+# xtract_sst_poss_cohort2_loc <- get_timeseries(rasIn = enddate_ras, 
+#                                         pts2extract = tibble(x=210.7867,
+#                                                              y=39.63334), subset_dt = getZ(enddate_ras)) %>%
+#                                         mutate(lon = ceiling(lon)) 
+# 
+# xtract_sst_poss_cohort2_loc <- xtract_sst_poss_cohort2_loc %>%
+#   mutate(value = round(xtract_sst_poss_cohort2_loc$value,2),
+#          lat =  round(xtract_sst_poss_cohort2_loc$lat,2),
+#          lon = make360(lon)) %>%
+#   mutate(date = getZ(enddate_ras)) %>%
+#   mutate(lat_deg = ifelse(lat > 0, str_c(round(lat,2), ' °N'), str_c(round(lat,2), ' °S')),
+#          lon_deg = ifelse(make180(lon) < 0, str_c(abs(round(make180(lon),2)), ' °W'),str_c(round(lon,2), ' °E')) )
+
 # pull latest SST at ship route loc
-xtract_sst_poss_cohort2_loc <- get_timeseries(rasIn = enddate_ras, 
-                                        pts2extract = tibble(x=210.7867,
-                                                             y=39.63334), subset_dt = getZ(enddate_ras)) %>%
+xtract_sst_actual_cohort2_loc <- get_timeseries(rasIn = enddate_ras, 
+                                        pts2extract = tibble(x=actual_ship_2024$lon[nrow(actual_ship_2024)],
+                                                             y=actual_ship_2024$lat[nrow(actual_ship_2024)]), subset_dt = getZ(enddate_ras)) %>%
                                         mutate(lon = ceiling(lon)) 
 
-xtract_sst_poss_cohort2_loc <- xtract_sst_poss_cohort2_loc %>%
-  mutate(value = round(xtract_sst_poss_cohort2_loc$value,2),
-         lat =  round(xtract_sst_poss_cohort2_loc$lat,2),
+xtract_sst_actual_cohort2_loc <- xtract_sst_actual_cohort2_loc %>%
+  mutate(value = round(xtract_sst_actual_cohort2_loc$value,2),
+         lat =  round(xtract_sst_actual_cohort2_loc$lat,2),
          lon = make360(lon)) %>%
   mutate(date = getZ(enddate_ras)) %>%
   mutate(lat_deg = ifelse(lat > 0, str_c(round(lat,2), ' °N'), str_c(round(lat,2), ' °S')),
@@ -448,16 +462,17 @@ release_loc_label_2023 <- sprintf(
 ) %>% lapply(htmltools::HTML)
 
 
-poss_release_loc_label_2024 <- sprintf(
-  "<strong>Location of Possible 2024<br></strong><strong> Turtle Release <br></strong><strong><br>Date: %s</strong><br/><strong>Lat: %s </strong><br/> <strong>Lon: %s </strong><br/><strong>Current SST: %s °C</strong>",
-  xtract_sst_poss_cohort2_loc$date, xtract_sst_poss_cohort2_loc$lat_deg, xtract_sst_poss_cohort2_loc$lon_deg, xtract_sst_poss_cohort2_loc$value
+# poss_release_loc_label_2024 <- sprintf(
+#   "<strong>Location of Possible 2024<br></strong><strong> Turtle Release <br></strong><strong><br>Date: %s</strong><br/><strong>Lat: %s </strong><br/> <strong>Lon: %s </strong><br/><strong>Current SST: %s °C</strong>",
+#   xtract_sst_poss_cohort2_loc$date, xtract_sst_poss_cohort2_loc$lat_deg, xtract_sst_poss_cohort2_loc$lon_deg, xtract_sst_poss_cohort2_loc$value
+# ) %>% lapply(htmltools::HTML)
+
+
+release_loc_label_2024 <- sprintf(
+  "<strong>Location of 2024<br></strong><strong> Turtle Release <br></strong><strong><br>Date: %s</strong><br/><strong>Lat: %s </strong><br/> <strong>Lon: %s </strong><br/><strong>In situ SST: %s °C</strong>",
+  actual_ship_2024$date, actual_ship_2024$lat_deg, actual_ship_2024$lon_deg, actual_ship_2024$insitu_sst
 ) %>% lapply(htmltools::HTML)
 
-
-# release_loc_label <- sprintf(
-#   "<strong>Location of 2003<br></strong><strong> Turtle Release <br></strong><strong><br>Date: %s</strong><br/><strong>Lat: %s </strong><br/> <strong>Lon: %s </strong><br/><strong>SST: %s °C</strong>",
-#   actual_ship$date, actual_ship$lat_deg, actual_ship$lon_deg, actual_ship$insitu_sst
-# ) %>% lapply(htmltools::HTML)
 
 # make ship icon
 # ship_icon_2023 <- makeAwesomeIcon(icon= 'ship', markerColor = 'lightgreen', iconColor = 'white', library = "fa")
@@ -481,12 +496,12 @@ ship_icon_2023 <-icons <- awesomeIcons(
 # ship_icon_2023 <- fontawesome::fa('fas fa-location-dot',height='60px',fill='lightgreen', fill_opacity=0.65)
 ship_icon_2024 <- makeAwesomeIcon(icon= 'ship', markerColor = 'lightgreen', iconColor = 'white', library = "fa")
 
-poss_release_loc_icon_2024 <-icons <- awesomeIcons(
-  icon = 'ios-close',
-  iconColor = 'black',
-  library = 'ion',
-  markerColor = 'blue'
-)
+# poss_release_loc_icon_2024 <-icons <- awesomeIcons(
+#   icon = 'ios-close',
+#   iconColor = 'black',
+#   library = 'ion',
+#   markerColor = 'blue'
+# )
 
 
 
@@ -559,21 +574,9 @@ map <- map %>%
   # add 2024 release location
   addAwesomeMarkers(lng = actual_ship$lon[recent_loc], lat = actual_ship$lat[recent_loc], 
                     icon=ship_icon_2024,
-                    label=actual_ship_labels[recent_loc],
-                    # label=release_loc_label[recent_loc],
-                    labelOptions = labelOptions(noHide = F, direction = "bottom",
-                                                style = list(
-
-                                                  "box-shadow" = "3px 3px rgba(0,0,0,0.25)",
-                                                  "font-size" = "12px",
-                                                  "border-color" = "rgba(0,0,0,0.5)"
-                                                ))
-                    ) |>
-  # add poss 2024 release location 
-    addAwesomeMarkers(lng = xtract_sst_poss_cohort2_loc$lon, lat = xtract_sst_poss_cohort2_loc$lat, 
-                    icon=poss_release_loc_icon_2024,
                     # label=actual_ship_labels[recent_loc],
-                    label=poss_release_loc_label_2024,
+                    # label=release_loc_label[recent_loc],
+                    label = release_loc_label_2024,
                     labelOptions = labelOptions(noHide = F, direction = "bottom",
                                                 style = list(
 
@@ -581,7 +584,20 @@ map <- map %>%
                                                   "font-size" = "12px",
                                                   "border-color" = "rgba(0,0,0,0.5)"
                                                 ))
-                    )
+                    ) #|>
+  # # add poss 2024 release location 
+  #   addAwesomeMarkers(lng = xtract_sst_poss_cohort2_loc$lon, lat = xtract_sst_poss_cohort2_loc$lat, 
+  #                   icon=poss_release_loc_icon_2024,
+  #                   # label=actual_ship_labels[recent_loc],
+  #                   label=poss_release_loc_label_2024,
+  #                   labelOptions = labelOptions(noHide = F, direction = "bottom",
+  #                                               style = list(
+  # 
+  #                                                 "box-shadow" = "3px 3px rgba(0,0,0,0.25)",
+  #                                                 "font-size" = "12px",
+  #                                                 "border-color" = "rgba(0,0,0,0.5)"
+  #                                               ))
+  #                   )
 
 
 
@@ -659,23 +675,21 @@ xtract_ssta_recent_loc_previous_dt <- get_timeseries(rasIn = previous_dt_ras_sst
 
 <br>
 
-#### [The tabs below show the daily 5km SST and SST anomalies (SSTA) for **`r getZ(enddate_ras)`**.]{style="font-size: 14pt"}
+#### [The tabs below show the daily 5km SST and SST anomalies (SSTA) for **`r getZ(enddate_ras)`**.]{style="font-size: 14pt"}<br>
 
 #### [Current conditions are based on the latest remotely sensed data from [NOAA Coral Reef Watch](https://coralreefwatch.noaa.gov/product/5km/index_5km_sst.php) and [GHRSST L4](https://podaac.jpl.nasa.gov/GHRSST). For comparison, the SSTA conditions are also shown for exactly 1 year prior (`r getZ(enddate_ras) - 366`).]{style="font-size: 14pt"}<br><br>
 
-#### [The [ **light green lines and ship icon represent the 2024 route**]{style="color:#59a14f"} for the ship of opportunity.]{style="font-size: 14pt"}
+#### The [**light green lines and ship icon represent the 2024 route and turtle release location on July 7, 2024**]{style="color:#59a14f"}. <br>The in situ SST measurement on that date was: 18°C.<br><br>
 
-#### [For comparison, the [ **dark green lines represent the location the 2023 shipping route**]{style="color:darkgreen"}. The [dark green icon]{style="color:#31572c"} represents the location of turtle release on July 10, 2023.]{style="font-size: 14pt"} <br><br>
-
-
-#### [**The** [**blue icon represents the 2024 potential release location**]{style="color: #023e8a"} **(39.63°N, 149°W)**. [**The current SST at this location is: **]{style="color: #023e8a"} [**`r xtract_sst_poss_cohort2_loc$val`°C**]{style="color:#E15759"}.]{style="font-size: 14pt"}<br><br> 
-
-
-#### [The current SST at [last year's release location]{style="color:darkgreen"} is: `r xtract_sst_recent_loc$val`°C. This 2024 SST value is **`r xtract_ssta_recent_loc_enddate$val`°C** warmer than the long-term average.]{style="font-size: 14pt"} <br>[*Note, the 2024 SST anomaly product reflects the daily value as of 2024-07-03, due to server maintenance with Coral Reef Watch over the holiday weekend. However the SST product remains up to date.*]{style="font-size: 12pt"}
-
-#### [In 2023, SSTs at the release location were `r xtract_ssta_recent_loc_previous_dt$val`°C warmer than the long-term average.]{style="font-size: 14pt"}<br><br>
+#### For comparison, the [**dark green lines and solid icon represent the 2023 route and turtle release location on July 10, 2023**]{style="color:darkgreen"}.<br>The in situ SST measurement on that date was: 24.8°C. <br><br>
 
 #### [The 4 circles represent longitudes of interest across the eastern North Pacific Ocean. Figure 2 shows a time series of SST conditions at these 4 longitudes.]{style="font-size: 14pt"} [Black lines represent the **18°C** isotherm. The Thermal Corridor area is outlined in white.<br><br>]{style="font-size: 14pt"}
+
+#### [*Note, the 2024 SST anomaly product reflects the daily value as of 2024-07-03, due to server maintenance with [Coral Reef Watch](https://coralreefwatch.noaa.gov) over the holiday weekend.* <br>However the daily SST product remains up to date.]{style="font-size: 13pt"}<br><br>
+
+<!-- #### [The current SST at [last year's release location]{style="color:darkgreen"} is: `r xtract_sst_recent_loc$val`°C. This 2024 SST value is **`r xtract_ssta_recent_loc_enddate$val`°C** warmer than the long-term average.]{style="font-size: 14pt"} <br> -->
+
+<!-- #### [In 2023, SSTs at the release location were `r xtract_ssta_recent_loc_previous_dt$val`°C warmer than the long-term average.]{style="font-size: 14pt"}<br><br> -->
 
 ###  {.tabset .tabset-pills}
 
@@ -760,20 +774,20 @@ map_ssta_w_long_cohort1_markers_enddate |>
                                                   "font-size" = "12px",
                                                   "border-color" = "rgba(0,0,0,0.5)"
                                                 ))
-                    ) |>
-  # add poss 2024 release location 
-    addAwesomeMarkers(lng = xtract_sst_poss_cohort2_loc$lon, lat = xtract_sst_poss_cohort2_loc$lat, 
-                    icon=poss_release_loc_icon_2024,
-                    # label=actual_ship_labels[recent_loc],
-                    label=poss_release_loc_label_2024,
-                    labelOptions = labelOptions(noHide = F, direction = "bottom",
-                                                style = list(
-
-                                                  "box-shadow" = "3px 3px rgba(0,0,0,0.25)",
-                                                  "font-size" = "12px",
-                                                  "border-color" = "rgba(0,0,0,0.5)"
-                                                ))
-                    )
+                    ) #|>
+  # # add poss 2024 release location 
+  #   addAwesomeMarkers(lng = xtract_sst_poss_cohort2_loc$lon, lat = xtract_sst_poss_cohort2_loc$lat, 
+  #                   icon=poss_release_loc_icon_2024,
+  #                   # label=actual_ship_labels[recent_loc],
+  #                   label=poss_release_loc_label_2024,
+  #                   labelOptions = labelOptions(noHide = F, direction = "bottom",
+  #                                               style = list(
+  # 
+  #                                                 "box-shadow" = "3px 3px rgba(0,0,0,0.25)",
+  #                                                 "font-size" = "12px",
+  #                                                 "border-color" = "rgba(0,0,0,0.5)"
+  #                                               ))
+  #                   )
 
 
 ```
@@ -852,20 +866,20 @@ map_ssta_w_long_cohort1_markers_previous_dt |>
                                                   "font-size" = "12px",
                                                   "border-color" = "rgba(0,0,0,0.5)"
                                                 ))
-                    ) |>
-  # add poss 2024 release location 
-    addAwesomeMarkers(lng = xtract_sst_poss_cohort2_loc$lon, lat = xtract_sst_poss_cohort2_loc$lat, 
-                    icon=poss_release_loc_icon_2024,
-                    # label=actual_ship_labels[recent_loc],
-                    label=poss_release_loc_label_2024,
-                    labelOptions = labelOptions(noHide = F, direction = "bottom",
-                                                style = list(
-
-                                                  "box-shadow" = "3px 3px rgba(0,0,0,0.25)",
-                                                  "font-size" = "12px",
-                                                  "border-color" = "rgba(0,0,0,0.5)"
-                                                ))
-                    )
+                    ) #|>
+  # # add poss 2024 release location 
+  #   addAwesomeMarkers(lng = xtract_sst_poss_cohort2_loc$lon, lat = xtract_sst_poss_cohort2_loc$lat, 
+  #                   icon=poss_release_loc_icon_2024,
+  #                   # label=actual_ship_labels[recent_loc],
+  #                   label=poss_release_loc_label_2024,
+  #                   labelOptions = labelOptions(noHide = F, direction = "bottom",
+  #                                               style = list(
+  # 
+  #                                                 "box-shadow" = "3px 3px rgba(0,0,0,0.25)",
+  #                                                 "font-size" = "12px",
+  #                                                 "border-color" = "rgba(0,0,0,0.5)"
+  #                                               ))
+  #                   )
 
 ```
 
@@ -890,10 +904,13 @@ map_ssta_w_long_cohort1_markers_previous_dt |>
 
 #### [Weekly and long-term average sea surface temperatures at 4 longitudes in the eastern North Pacific:]{style="font-size: 14pt"}
 
-#### * [ 43°N **160°W**]{style="font-size: 14pt"}
-#### * [ 41°N **150°W**]{style="font-size: 14pt"}
-#### * [ 40°N **145°W**]{style="font-size: 14pt"}
-#### * [ 38°N **140°W**]{style="font-size: 14pt"}<br><br>
+#### \* [43°N **160°W**]{style="font-size: 14pt"}
+
+#### \* [41°N **150°W**]{style="font-size: 14pt"}
+
+#### \* [40°N **145°W**]{style="font-size: 14pt"}
+
+#### \* [38°N **140°W**]{style="font-size: 14pt"}<br><br>
 
 #### [For each longitude, the darker lines with circles represent the weekly SST average since 2023.]{style="font-size: 14pt"}<br>
 
