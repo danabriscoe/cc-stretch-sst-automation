@@ -685,7 +685,7 @@ xtract_ssta_recent_loc_previous_dt <- get_timeseries(rasIn = previous_dt_ras_sst
 
 #### [The 4 circles represent longitudes of interest across the eastern North Pacific Ocean. Figure 2 shows a time series of SST conditions at these 4 longitudes.]{style="font-size: 14pt"} [Black lines represent the **18°C** isotherm. The Thermal Corridor area is outlined in white.<br><br>]{style="font-size: 14pt"}
 
-#### [*Note, the 2024 SST anomaly product reflects the daily value as of 2024-07-03, due to server maintenance with [Coral Reef Watch](https://coralreefwatch.noaa.gov) over the holiday weekend.* <br>However the daily SST product remains up to date.]{style="font-size: 13pt"}<br><br>
+<!-- #### [*Note, the 2024 SST anomaly product reflects the daily value as of 2024-07-03, due to server maintenance with [Coral Reef Watch](https://coralreefwatch.noaa.gov) over the holiday weekend.* <br>However the daily SST product remains up to date.]{style="font-size: 13pt"}<br><br> -->
 
 <!-- #### [The current SST at [last year's release location]{style="color:darkgreen"} is: `r xtract_sst_recent_loc$val`°C. This 2024 SST value is **`r xtract_ssta_recent_loc_enddate$val`°C** warmer than the long-term average.]{style="font-size: 14pt"} <br> -->
 
