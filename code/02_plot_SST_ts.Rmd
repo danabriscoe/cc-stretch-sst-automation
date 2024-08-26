@@ -15,6 +15,7 @@ params:
   enddate: !r Sys.Date() - 1
   startdate: !r params$enddate - 15
   add_clim: TRUE
+  save_rds: FALSE
   nc_path: "/Users/briscoedk/dbriscoe@stanford.edu - Google Drive/My Drive/ncdf/deploy_reports"
 ---
 
@@ -162,6 +163,12 @@ if(params$interval == 'daily'){
 }
 
 ```
+
+```{r save-rds, eval=params$save_rds}
+saveRDS(df, file="../data/weekly_sst_df.rds")
+
+```
+
 
 
 ```{r ggplot-xy-timeseries}
