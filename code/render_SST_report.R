@@ -51,7 +51,7 @@ render_ncdfs(
   varname = "CRW_SST",
   dataset_ID = "dhw_5km",
   enddate <- Sys.Date() - 2,
-  startdate <- enddate - 15,
+  startdate <- enddate - 60, #15, #dkb note (17 Sept 2024): canvas a larger period to re-download any bad files (< 6.8 mb)
   timestep = "day",
   nc_path = "/Users/briscoedk/dbriscoe@stanford.edu - Google Drive/My Drive/ncdf/deploy_reports",
   bbox <- tibble(ymin=20, ymax=60,xmin=-180, xmax=-110)
