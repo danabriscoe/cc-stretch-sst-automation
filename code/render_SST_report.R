@@ -51,7 +51,7 @@ render_ncdfs(
   varname = "CRW_SST",
   dataset_ID = "dhw_5km",
   enddate <- Sys.Date() - 2,
-  startdate <- enddate - 180 #60, #15, #dkb note (17 Sept 2024): canvas a larger period to re-download any bad files (< 6.8 mb)
+  startdate <- enddate - 60, #15, #dkb note (17 Sept 2024): canvas a larger period to re-download any bad files (< 6.8 mb)
   timestep = "day",
   nc_path = "/Users/briscoedk/dbriscoe@stanford.edu - Google Drive/My Drive/ncdf/deploy_reports",
   bbox <- tibble(ymin=20, ymax=60,xmin=-180, xmax=-110)
@@ -66,7 +66,7 @@ render_ncdfs(
   dataset_ID = "dhw_5km",
   enddate <- Sys.Date() - 2,
   # startdate <- Sys.Date() - (3+14),#"2023-07-10",  ## JUST PULL MOST RECENT 2 dailys for SSTA map (for now) + covering last 2 weeks, just in case automator didn't run 
-  startdate <- Sys.Date() - (3+180),#"2023-07-10",  ## JUST PULL MOST RECENT 2 dailys for SSTA map (for now) + covering last 2 weeks, just in case automator didn't run 
+  startdate <- Sys.Date() - (3+60),#"2023-07-10",  ## JUST PULL MOST RECENT 2 dailys for SSTA map (for now) + covering last 2 weeks, just in case automator didn't run 
   timestep = "day",
   nc_path = "/Users/briscoedk/dbriscoe@stanford.edu - Google Drive/My Drive/ncdf/npac",
   bbox <- dplyr::tibble(ymin=20, ymax=50,xmin=-180, xmax=-110)
