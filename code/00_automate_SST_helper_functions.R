@@ -142,7 +142,7 @@ add_xWeeks_scale <- function(data, brks=7){
     scale_x_date(
       # date_breaks = "1 week", date_minor_breaks = "1 week",             # if you want Monday (first of next week)
       breaks = seq(data$date[1], data$date[length(data$date)],brks),         # else if you want Sunday of current weekly avg
-      date_labels = "%d %b",
+      date_labels = "%d %b %y",
       limits = c(data$date[1], data$date[length(data$date)]))
   )
 }
@@ -310,7 +310,7 @@ plot_timeseries <- function(data, #unit='day',
     scale_x_date(
       # date_breaks = "1 week", date_minor_breaks = "1 week",             # if you want Monday (first of next week)
       breaks = seq(data$date[1], data$date[length(data$date)],7),         # else if you want Sunday of current weekly avg
-      date_labels = "%d %b",
+      date_labels = "%d %b %y",
       limits = c(data$date[1], data$date[length(data$date)])) +
     
     # theme_minimal() +

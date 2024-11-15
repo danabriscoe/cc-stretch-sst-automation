@@ -192,7 +192,8 @@ df_full <- df
 
 df <- df %>%
   # filter(date >= '2023-05-01')
-  filter(date >= '2023-07-01')
+  # filter(date >= '2023-07-01')
+  filter(date >= Sys.Date() - (366+2))
 
 ```
 
