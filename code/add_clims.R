@@ -5,6 +5,8 @@ library(raster)
 library(sf)
 library(khroma)
 library(plotly)
+library(lubridate)
+library(tidyverse)
 
 ## Source helper functions
 source('code/00_automate_SST_helper_functions.R')
@@ -26,8 +28,8 @@ print(max(ncs))
 all_rasters <- raster::stack(ncs)
 
 fdates <- ncs %>% 
-  str_split(., "_") %>%
-  purrr::map_chr(~ pluck(., 6)) %>%
+  stringr::str_split(., "_") %>%
+  purrr::map_chr(~ purrr::pluck(., 6)) %>%
   substr(., start=1, stop=10)
 # ----------
 
@@ -42,17 +44,23 @@ dates <- seq(ymd('2023-01-01'),ymd('2023-12-31'), by = '1 month')
 # mdates <- lubridate::month(dates) %>% unique() #%>% month.abb[.] #%>% enframe() %>% transmute("mon_abb" = value)
 mdates <- lubridate::month(fdates) %>% unique() #%>% month.abb[.] #%>% enframe() %>% transmute("mon_abb" = value)
 
+# # subset to dates between Jan 1997 and Dec 2022 (keep 2023 out of it for now)
+# all_rasters_subset <- subset(all_rasters, which(getZ(all_rasters) >= '1997-01-01' & (getZ(all_rasters) <= '2022-12-31')))
+
+end_clim_year <- year(Sys.Date()) - 1
+start_clim_year <- '1985-01-01'
+
 # subset to dates between Jan 1997 and Dec 2022 (keep 2023 out of it for now)
-all_rasters_subset <- subset(all_rasters, which(getZ(all_rasters) >= '1997-01-01' & (getZ(all_rasters) <= '2022-12-31')))
+all_rasters_subset <- subset(all_rasters, which(getZ(all_rasters) >= start_clim_year & (getZ(all_rasters) <= end_clim_year)))
 
 ## used to subset by specific months. now doing all months (1-12), so this isn't really relevant. clean up later... ----
 # idx <- getZ(all_rasters) %>%
   # fdates %>%
 idx <- getZ(all_rasters_subset) %>%
-  lubridate::month(.) %>% as.tibble() %>%
+  lubridate::month(.) %>% as_tibble() %>%
   mutate(id = row_number()) %>%
   setNames(c('month', 'id')) %>%
-  relocate(month, .after = id) %>%
+  dplyr::relocate(month, .after = id) %>%
   filter(month %in% mdates)
 
 # ras_month = subset(all_rasters, idx$id)
@@ -60,8 +68,8 @@ ras_month = subset(all_rasters_subset, idx$id)
 ## --------------
 
 # fyi, need to set 'xy' -- got this temporarily from 02_plot SST ts with isotherm...
-xy <- data.frame(x = unique(xtract_df_long$lon),  # -160 -150 -145 -140
-        y = unique(xtract_df_long$lat))           # 43.02 41.03 39.84 38.13
+# xy <- data.frame(x = unique(xtract_df_long$lon),  # -160 -150 -145 -140
+#         y = unique(xtract_df_long$lat))           # 43.02 41.03 39.84 38.13
 
 xy <- data.frame(x = c(160, -150, -145, -140),
                  y = c(43.02, 41.03, 39.84, 38.13))
