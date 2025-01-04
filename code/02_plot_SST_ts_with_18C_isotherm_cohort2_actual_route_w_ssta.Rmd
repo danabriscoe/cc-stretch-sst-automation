@@ -393,7 +393,7 @@ actual_ship_2024 <- read.csv(here('data','ship_in_situ_info_2024.csv'), sep=',')
 
 
 # sort this out later...
-if(year(params$enddate) == 2024){
+if(year(params$enddate) == 2024 | 2025){
   actual_ship <- actual_ship_2024
 }
 
