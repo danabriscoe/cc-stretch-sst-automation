@@ -1,7 +1,10 @@
 # render SST report.R
 # note: include ../ fpath when running script from command line
 
-Sys.setenv(RSTUDIO_PANDOC="/Applications/RStudio.app/Contents/Resources/app/quarto/bin/tools")
+# Sys.setenv(RSTUDIO_PANDOC="/Applications/RStudio.app/Contents/Resources/app/quarto/bin/tools")
+Sys.setenv(RSTUDIO_PANDOC="/Applications/RStudio.app/Contents/Resources/app/quarto/bin/tools/aarch64") # fyi, new posit rstudio release 12-2024
+## used the following command to locate the newer pandoc version (source: )
+# rmarkdown::find_pandoc()
 
 
 # render plots function -----
