@@ -159,22 +159,38 @@ add_theme <- function(){
   )
 }
 
-make180 <- function(lon){
-  isnot360<-min(lon)<0
-  if (!isnot360) {
-    ind<-which(lon>180)
-    lon[ind]<-lon[ind]-360
+# make180 <- function(lon){
+#   isnot360<-min(lon)<0
+#   if (!isnot360) {
+#     ind<-which(lon>180)
+#     lon[ind]<-lon[ind]-360
+#   }
+#   return(lon)
+# }
+
+make180 <- function(lon) {
+  if (all(is.na(lon))) return(lon)
+  is_360 <- all(lon >= 0, na.rm = TRUE)
+  if (is_360) {
+    lon <- ifelse(lon > 180, lon - 360, lon)
   }
   return(lon)
 }
 
-make360 <- function(lon){
-  isnot360<-min(lon)<0
-  if(isnot360){
-    ind<-which(lon<0)
-    lon[ind]<-lon[ind]+360
-  }
-  return(lon)
+
+
+# make360 <- function(lon){
+#   isnot360<-min(lon)<0
+#   if(isnot360){
+#     ind<-which(lon<0)
+#     lon[ind]<-lon[ind]+360
+#   }
+#   return(lon)
+# }
+
+make360 <- function(lon) {
+  # Convert -180:180 to 0:360 by wrapping negatives
+  ifelse(!is.na(lon) & lon < 0, lon + 360, lon)
 }
 
 
@@ -213,8 +229,8 @@ get_npac_map <- function(xy, lon_type = '360', add_deploy_lons=TRUE, cpal, col_b
   map <- ship_pts |>
     leaflet() |>
     # fitBounds(120, 15, 250, 60) %>%
-    # setView(180, 35, zoom = 4) |> # full npac view
-    setView(210, 32, zoom = 4) |> # epac view
+    setView(180, 35, zoom = 4) |> # full npac view
+    # setView(210, 32, zoom = 4) |> # epac view
     addTiles() |>
     
     ## Turn off/on great circle dots...
