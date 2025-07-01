@@ -518,7 +518,7 @@ actual_ship_labels_2023 <- sprintf(
 
 # 2024 shipping labels
 actual_ship_labels_2024 <- sprintf(
-  "<strong> Date: %s</strong><br/><strong>Lat: %s </strong><br/> <strong>Lon: %s </strong><br/><strong>SST: %s °C</strong>",
+  "<strong>2024 Route<br></strong><strong> Date: %s</strong><br/><strong>Lat: %s </strong><br/> <strong>Lon: %s </strong><br/><strong>SST: %s °C</strong>",
   actual_ship_2024$date, actual_ship_2024$lat_deg, actual_ship_2024$lon_deg, actual_ship_2024$insitu_sst
 ) %>% lapply(htmltools::HTML)
 
