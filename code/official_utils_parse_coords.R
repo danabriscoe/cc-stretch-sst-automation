@@ -191,8 +191,32 @@ parzer::parse_lon_lat(lon = long, lat = lat)
  
 ## 01 july 2025 ---- 
 lat = c("36° 39.788") #36°39.788'N
-long = c("145° 28.2644") #145°28.264'EE 
+long = c("145° 28.2644") #145°28.264'E 
 parzer::parse_lon_lat(lon = long, lat = lat)
+
+
+## 02 july 2025 ---- 
+lat = c("38° 30.344") #38°30.344'N
+long = c("150° 40.646") #150°40.646'E
+parzer::parse_lon_lat(lon = long, lat = lat)
+
+## 02 july 2025 ---- 
+lat = c("39° 31.820") #39°31.820'N
+long = c("154° 33.092") #154°33.092'E
+parzer::parse_lon_lat(lon = long, lat = lat)
+
+
+## 03 july 2025 ---- 
+lat = c("40° 50.065") #40°50.065'N
+long = c("159° 34.207") #159°34.207'E
+parzer::parse_lon_lat(lon = long, lat = lat)
+
+
+## 03 july 2025 ---- 
+lat = c("41° 32.818") #41°32.818'N
+long = c("163° 38.361") #163°38.361'E
+parzer::parse_lon_lat(lon = long, lat = lat)
+
 
 
 
