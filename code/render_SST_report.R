@@ -113,3 +113,6 @@ git2r::commit(repo, str_c("test commit ", commit_dt))
 ## Push commits from repository to bare repository
 push(repo, "origin", "refs/heads/main")
 
+
+# fin
+
