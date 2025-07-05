@@ -114,5 +114,5 @@ git2r::commit(repo, str_c("test commit ", commit_dt))
 push(repo, "origin", "refs/heads/main")
 
 
-# fin
+# fin --
 
