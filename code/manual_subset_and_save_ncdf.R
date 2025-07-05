@@ -5,8 +5,10 @@ library(terra)
 
 ## SST ----------------------
 
+sst_fname = 'coraltemp_v3.1_20250703'
+
 # Load the NetCDF file
-fpath <- "~/Downloads/coraltemp_v3.1_20250630.nc"
+fpath <- glue("~/Downloads/{sst_fname}.nc")
 r <- rast(fpath, lyrs = 1)  # First variable/layer only: analysed sst
 
 # Check variable and coordinate structure
@@ -23,7 +25,7 @@ names(r_subset) <- "sea.surface.temperature.1"
 
 # Save as NetCDF with desired variable name and structure
 writeCDF(r_subset,
-         filename = "~/Downloads/coraltemp_v3.1_20250630_ENP_subset.nc",
+         filename = glue("~/Downloads/{sst_fname}_ENP_subset.nc"),
          varname = "CRW_SST",  # zvar
          # varunit = "degree_Celsius",  # optional
          overwrite = TRUE)
@@ -32,8 +34,10 @@ writeCDF(r_subset,
 
 ## SSTA ----------------------
 
+ssta_fname = 'ct5km_ssta_v3.1_20250703'
+
 # Load the NetCDF file
-fpath <- "~/Downloads/ct5km_ssta_v3.1_20250630.nc"
+fpath <- glue("~/Downloads/{ssta_fname}.nc")
 r <- rast(fpath, lyrs = 1)  # First variable/layer only: analysed sst
 
 # Check variable and coordinate structure
@@ -50,7 +54,9 @@ crs(r_subset) <- "+proj=longlat +datum=WGS84 +no_defs"
 
 # Save as NetCDF with desired variable name and structure
 writeCDF(r_subset,
-         filename = "~/Downloads/t5km_ssta_v3.1_20250630_ENP_subset.nc",
+         filename = glue("~/Downloads/{ssta_fname}_ENP_subset.nc"),
          varname = "CRW_SSTANOMALY",  # zvar
          # varunit = "degree_Celsius",  # optional
          overwrite = TRUE)
+
+

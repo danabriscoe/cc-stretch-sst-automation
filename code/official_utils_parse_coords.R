@@ -218,6 +218,17 @@ long = c("163° 38.361") #163°38.361'E
 parzer::parse_lon_lat(lon = long, lat = lat)
 
 
+## 04 july 2025 ---- 
+lat = c("42° 27.437") #42°27.437'N
+long = c("169° 05.581") #169°05.581'E
+parzer::parse_lon_lat(lon = long, lat = lat)
+
+
+## 04 july 2025 ---- 
+lat = c("42° 51.410") #42°51.410'N
+long = c("173° 23.717") #173°23.717'E
+parzer::parse_lon_lat(lon = long, lat = lat)
+
 
 
 
