@@ -230,6 +230,33 @@ long = c("173° 23.717") #173°23.717'E
 parzer::parse_lon_lat(lon = long, lat = lat)
 
 
+## 05 july 2025 ---- 
+lat = c("43° 15.261") #43°15.261'N
+long = c("178° 52.271") #178°52.271'E
+parzer::parse_lon_lat(lon = long, lat = lat)
+
+
+## 04 july 2025 AGAIN ----   USE MAKE 360, NOW ACROSS DATELINE (W)
+lat = c("43° 17.142") #43°17.142'N
+long = c("176° 44.178") #176°44.178'W
+parzer::parse_lon_lat(lon = long, lat = lat)
+make360(-176.7363)
+
+
+## 05 july 2025 AGAIN ----   USE MAKE 360, NOW ACROSS DATELINE (W)
+lat = c("43° 12.795") #43°12.795'N
+long = c("171° 07.380") #171°07.380'W
+parzer::parse_lon_lat(lon = long, lat = lat)
+make360(-171.123)
+
+
+## 05 july 2025 AGAIN ----   USE MAKE 360, NOW ACROSS DATELINE (W)
+lat = c("42° 51.973") #42°51.973'N
+long = c("166° 45.955") #166°45.955'W
+parzer::parse_lon_lat(lon = long, lat = lat)
+make360(-166.7659)
+
+
 
 
 #### ---------
