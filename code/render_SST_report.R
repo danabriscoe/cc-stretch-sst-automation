@@ -142,7 +142,7 @@ commit_dt <- gsub("-", " ", Sys.time()) %>% gsub(":", " ", .)
 git_commit(message = str_c("test commit ", commit_dt))
 
 # Push to origin/main
-git_push(remote = "origin", refspec = "main")
+git_push(remote = "origin", refspec = "refs/heads/main")
 
 
 # fin --
