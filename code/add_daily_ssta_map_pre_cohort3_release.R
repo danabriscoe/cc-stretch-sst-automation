@@ -58,7 +58,8 @@ fdates_ssta <- ncs_ssta %>%
 ## end only for unit testing ---
 dates_ssta = fdates_ssta
 enddate_idx = which(fdates_ssta == Sys.Date() - 2)
-previous_dt_idx = which(fdates_ssta == Sys.Date() - (366+2))
+# previous_dt_idx = which(fdates_ssta == Sys.Date() - (366+2))
+previous_dt_idx = which(fdates_ssta == Sys.Date() - (366+1)) # this should now match exacty one year prev to the day.
 
 
 # ncIn_ssta <- sapply(1:length(dates_ssta), function(x) ncs_ssta[grepl(dates_ssta[x],ncs_ssta)])
