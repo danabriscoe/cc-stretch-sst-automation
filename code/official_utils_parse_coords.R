@@ -257,6 +257,34 @@ parzer::parse_lon_lat(lon = long, lat = lat)
 make360(-166.7659)
 
 
+## 06 july 2025  ----   USE MAKE 360, NOW ACROSS DATELINE (W)
+lat = c("42° 15.139") #42°15.139'N
+long = c("160° 47.876") #160°47.876'W
+parzer::parse_lon_lat(lon = long, lat = lat)
+make360(-160.7979)
+
+
+## 06 july 2025  ----   USE MAKE 360, NOW ACROSS DATELINE (W)
+lat = c("41° 30.820") #41°30.820'N
+long = c("156° 38.899") #156°38.899'W
+parzer::parse_lon_lat(lon = long, lat = lat)
+make360(-156.6483)
+
+
+## 07 july 2025  ----   USE MAKE 360, NOW ACROSS DATELINE (W)
+lat = c("40° 25.667") #40°25.667'N
+long = c("151° 09.648") #151°09.648'W
+parzer::parse_lon_lat(lon = long, lat = lat)
+make360(-151.1608)
+
+
+## 07 july 2025  (Local Time) ---- (ACTUAL RELEASE LOCATION - COHORT 3)
+lat = c("39° 41.316N") #439°41.316N
+long = c("148° 09.040W") # 148°09.040W
+parzer::parse_lon_lat(lon = long, lat = lat)
+make360(-148.1507)
+
+
 
 
 #### ---------
