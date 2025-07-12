@@ -104,13 +104,14 @@ render_SST_timeseries(
   nc_path = "/Users/briscoedk/dbriscoe@stanford.edu - Google Drive/My Drive/ncdf/deploy_reports"
 )
 
-
+# 
 # library(git2r)
 # library(tidyverse)
 # repo <- repository()
 # 
 # commit_dt <- gsub("-", " ", Sys.time()) %>% gsub(":", " ", .)
-# git2r::add(repo, "docs/index.html")
+# # git2r::add(repo, "docs/index.html")
+# git2r::add(repo, here::here("docs/index.html"))
 # git2r::commit(repo, str_c("test commit ", commit_dt))
 # ## Push commits from repository to bare repository
 # push(repo, "origin", "refs/heads/main")
@@ -123,18 +124,18 @@ library(tidyverse)
 git_add(here::here("docs/index.html"))
 
 
-# # Check which files are staged
-# staged <- git_status(staged = TRUE)
-# print(staged)
-# 
-# # Only commit if something is staged
-# if (nrow(staged) > 0) {
-#   commit_dt <- gsub("-", " ", Sys.time()) %>% gsub(":", " ", .)
-#   git_commit(message = str_c("test commit ", commit_dt))
-#   git_push(remote = "origin", refspec = "main")
-# } else {
-#   message("⚠️ No staged changes to commit.")
-# }
+# Check which files are staged
+staged <- git_status(staged = TRUE)
+print(staged)
+
+# Only commit if something is staged
+if (nrow(staged) > 0) {
+  commit_dt <- gsub("-", " ", Sys.time()) %>% gsub(":", " ", .)
+  git_commit(message = str_c("test commit ", commit_dt))
+  git_push(remote = "origin", refspec = "main")
+} else {
+  message("⚠️ No staged changes to commit.")
+}
 
 
 # Create a commit with current date/time
