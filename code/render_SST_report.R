@@ -120,7 +120,7 @@ library(gert)
 library(tidyverse)
 
 # Stage the rendered file
-git_add("docs/index.html")
+git_add(here::here("docs/index.html"))
 
 
 # # Check which files are staged
