@@ -896,7 +896,7 @@ recent_loc <- nrow(actual_ship)
 
 #### [Current conditions are based on the latest remotely sensed data from [NOAA Coral Reef Watch](https://coralreefwatch.noaa.gov/product/5km/index_5km_sst.php)]{style="font-size: 14pt"}. <br>  The SSTA conditions are also shown for exactly 1 year prior (`r getZ(enddate_ras) - 366`).<br><br>
 
-#### \* The [**light blue ship icon and lines represent the 2025 Ship of Opportunity route**]{style="color:#008AB8"}. <br>  The estimated release date is: July 8-9, 2025 (UTC).<br><br>
+#### \* The [**light blue ship icon and lines represent the 2025 route and turtle release location on July 8, 2025**]{style="color:#008AB8"}. <br>  The in situ SST measurement on that date was: 19°C.<br><br>
 
 #### \* For comparison, the [**light green lines and solid icon represent the 2024 route and turtle release location on July 7, 2024**]{style="color:#59a14f"}. <br>  The in situ SST measurement on that date was: 18°C.<br><br>
 
