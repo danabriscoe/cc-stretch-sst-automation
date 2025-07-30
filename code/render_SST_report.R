@@ -117,35 +117,39 @@ render_SST_timeseries(
 # push(repo, "origin", "refs/heads/main")
 
 
-# library(gert)
-# library(tidyverse)
-# 
-# # Stage the rendered file
-# # git_add(here::here("docs/index.html"))
+library(gert)
+library(tidyverse)
+
+# Stage the rendered file
 # git_add(here::here("docs/index.html"))
-# 
-# 
+git_add(here::here("docs/index.html"))
+
+# status <- gert::git_status()
+# to_stage <- status$file[status$status == "modified" & status$staged == FALSE]
+# if (length(to_stage)) gert::git_add(to_stage)
+
+
 # # Check which files are staged
 # staged <- git_status(staged = TRUE)
 # print(staged)
 # 
-# # Only commit if something is staged
-# if (nrow(staged) > 0) {
+# # # Only commit if something is staged
+# # if (nrow(staged) > 0) {
 #   commit_dt <- gsub("-", " ", Sys.time()) %>% gsub(":", " ", .)
 #   git_commit(message = str_c("test commit ", commit_dt))
-#   git_push(remote = "origin", refspec = "main")
-# } else {
-#   message("⚠️ No staged changes to commit.")
-# }
-# 
-# 
-# # Create a commit with current date/time
-# commit_dt <- gsub("-", " ", Sys.time()) %>% gsub(":", " ", .)
-# git_commit(message = str_c("test commit ", commit_dt))
-# 
-# # Push to origin/main
-# git_push(remote = "origin", refspec = "refs/heads/main")
-# 
-# 
-# # fin --
-# 
+#   git_push(remote = "origin", refspec = "refs/heads/main")
+# # } else {
+# #   message("⚠️ No staged changes to commit.")
+# # }
+
+
+# Create a commit with current date/time
+commit_dt <- gsub("-", " ", Sys.time()) %>% gsub(":", " ", .)
+git_commit(message = str_c("test commit ", commit_dt))
+
+# Push to origin/main
+git_push(remote = "origin", refspec = "refs/heads/main")
+
+
+# fin --
+
