@@ -121,6 +121,7 @@ library(gert)
 library(tidyverse)
 
 # Stage the rendered file
+# git_add(here::here("docs/index.html"))
 git_add(here::here("docs/index.html"))
 
 
