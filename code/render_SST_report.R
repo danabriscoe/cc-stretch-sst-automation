@@ -151,5 +151,23 @@ git_commit(message = str_c("test commit ", commit_dt))
 git_push(remote = "origin", refspec = "refs/heads/main")
 
 
+## added this now works ---
+# Check what's currently staged
+status <- git_status()
+staged_files <- status[status$staged == TRUE, ]
+print("Currently staged files:")
+print(staged_files)
+
+if (nrow(staged_files) > 0) {
+  commit_dt <- format(Sys.time(), "%Y%m%d_%H%M%S")
+  git_commit(message = paste("Update SST report", commit_dt))
+  git_push(remote = "origin", refspec = "refs/heads/main")
+  cat("Successfully committed and pushed\n")
+} else {
+  cat("No staged files found\n")
+}
+
+
+
 # fin --
 
