@@ -825,35 +825,35 @@ map <- map %>% addLegend(
 
 
 ```{r}
-library(plotly)
-p_insitu_sst <- 
-  ggplot(data = actual_ship %>% drop_na(), aes(lon, insitu_sst, group = 1, text = 
-  str_c('Date: ', date,
-        '\nLat: ', round(lat, 2), " N",
-        '</br>Lon: ', ifelse(make180(lon) < 0, str_c(abs(round(make180(lon),2)), ' W'), str_c(round(lon,2), ' E')), 
-        '</br>SST: ', insitu_sst, " C"))) +
-  geom_point(aes(x=lon, y=insitu_sst), color = 'darkseagreen4', size = 3) +
-  geom_line(aes(x=lon, y=insitu_sst),color = 'darkseagreen4', linewidth = 1) +
-  
-  scale_y_continuous(limits=c(12,27), breaks=seq(12,26,2)) +
-  scale_x_longitude(xmin=120, xmax=245, step=10) +
-  
-  geom_rect(aes(ymin = 18.0, ymax = 18.1,
-                xmin = 140, xmax = 255), fill='black',
-            alpha = 1, inherit.aes = FALSE) +
-
-  theme_minimal() +
-  theme(legend.position = "none",
-        axis.text.x=element_text(size=12),
-        axis.text.y=element_text(size=12),
-        axis.title = element_text(size = 12)
-        ) + 
-  labs(x="Longitude", y = " SST (degrees C)\n")
-
-
-p<- ggplotly(p_insitu_sst,tooltip = list("text"))
-
-fig_2 <- p
+# library(plotly)
+# p_insitu_sst <- 
+#   ggplot(data = actual_ship %>% drop_na(), aes(lon, insitu_sst, group = 1, text = 
+#   str_c('Date: ', date,
+#         '\nLat: ', round(lat, 2), " N",
+#         '</br>Lon: ', ifelse(make180(lon) < 0, str_c(abs(round(make180(lon),2)), ' W'), str_c(round(lon,2), ' E')), 
+#         '</br>SST: ', insitu_sst, " C"))) +
+#   geom_point(aes(x=lon, y=insitu_sst), color = 'darkseagreen4', size = 3) +
+#   geom_line(aes(x=lon, y=insitu_sst),color = 'darkseagreen4', linewidth = 1) +
+#   
+#   scale_y_continuous(limits=c(12,27), breaks=seq(12,26,2)) +
+#   scale_x_longitude(xmin=120, xmax=245, step=10) +
+#   
+#   geom_rect(aes(ymin = 18.0, ymax = 18.1,
+#                 xmin = 140, xmax = 255), fill='black',
+#             alpha = 1, inherit.aes = FALSE) +
+# 
+#   theme_minimal() +
+#   theme(legend.position = "none",
+#         axis.text.x=element_text(size=12),
+#         axis.text.y=element_text(size=12),
+#         axis.title = element_text(size = 12)
+#         ) + 
+#   labs(x="Longitude", y = " SST (degrees C)\n")
+# 
+# 
+# p<- ggplotly(p_insitu_sst,tooltip = list("text"))
+# 
+# fig_2 <- p
 ```
 
 ```{r fig-bottom}
