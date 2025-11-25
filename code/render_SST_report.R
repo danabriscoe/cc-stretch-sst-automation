@@ -92,16 +92,25 @@ render_ncdfs(
   bbox <- dplyr::tibble(ymin=20, ymax=50,xmin=-180, xmax=-110)
 )
 
+# 
+# render_SST_timeseries(
+#   eov = "sst",
+#   eov_unit = "°C",
+#   deploy_lons <- c(-160, -150, -145, -140),
+#   interval = "weekly",
+#   sst_thresh <- c(17),
+#   # enddate <- Sys.Date() - 1,
+#   # startdate <- enddate - 15,
+#   nc_path = "/Users/briscoedk/dbriscoe@stanford.edu - Google Drive/My Drive/ncdf/deploy_reports"
+# )
 
 render_SST_timeseries(
   eov = "sst",
   eov_unit = "°C",
-  deploy_lons <- c(-160, -150, -145, -140),
+  deploy_lons = c(-160, -150, -145, -140),
   interval = "weekly",
-  sst_thresh <- c(17),
-  # enddate <- Sys.Date() - 1,
-  # startdate <- enddate - 15,
-  nc_path = "/Users/briscoedk/dbriscoe@stanford.edu - Google Drive/My Drive/ncdf/deploy_reports"
+  sst_thresh = c(17),
+  nc_path = "..."
 )
 
 # 

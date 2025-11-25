@@ -13,7 +13,8 @@ params:
   interval: "weekly"
   sst_thresh: !r c(18)
   enddate: !r Sys.Date() - 2
-  startdate: !r params$enddate - 16
+  # startdate: !r params$enddate - 16
+  startdate: NULL
   add_clim: TRUE
   add_sst_map: TRUE
   save_rds: FALSE
@@ -73,6 +74,14 @@ library(glue)
 source(here('code','00_automate_SST_helper_functions.R'))
 
 ```
+
+```{r set-startdate}
+if (is.null(params$startdate)) {
+  params$startdate <- params$enddate - 16
+}
+
+```
+
 
 ```{r list-ncs}
 # 1) get nc dir
