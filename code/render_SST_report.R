@@ -110,7 +110,7 @@ render_SST_timeseries(
   deploy_lons = c(-160, -150, -145, -140),
   interval = "weekly",
   sst_thresh = c(17),
-  nc_path = "..."
+  nc_path = "/Users/briscoedk/dbriscoe@stanford.edu - Google Drive/My Drive/ncdf/deploy_reports"
 )
 
 # 
