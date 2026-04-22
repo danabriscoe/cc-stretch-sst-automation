@@ -224,9 +224,9 @@ p_sst_ts <- plot_timeseries(data = df %>%
                               mutate(ID = str_c(abs(ceiling(lon)), ' W')), 
                              cpal = cpal, ylimits = c(6,24), ybreaks = seq(6,24, by = 2)) +
     # add 18C isobar
-    geom_rect(aes(ymin = 17.9, ymax = 18.1,
-                            xmin = date[1], xmax = date[length(date)]), fill='gray10',
-            alpha = 0.15, inherit.aes = FALSE) +
+    annotate("rect", ymin = 17.9, ymax = 18.1,
+             xmin = min(df$date), xmax = max(df$date),
+             fill = 'gray10', alpha = 0.15) +
 
   add_xWeeks_scale(data = df, brks = 14) +  # brks = n days
   

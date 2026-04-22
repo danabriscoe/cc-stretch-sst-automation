@@ -23,6 +23,36 @@ render_ncdfs = function(node, url, eov, varname,
 }
 
 
+# check for small (incomplete) ncdf files and redownload -----
+redownload_small_ncdfs = function(nc_path, eov, varname, node, url,
+                                   dataset_ID, timestep, bbox,
+                                   min_size_mb = 6.8) {
+  files     <- list.files(nc_path, pattern = paste0("^", eov, "_"), full.names = TRUE)
+  sizes_mb  <- file.info(files)$size / 1e6
+  small_idx <- which(sizes_mb < min_size_mb)
+
+  if (length(small_idx) == 0) {
+    cat(sprintf("All %s files >= %.1f MB — no redownload needed.\n", eov, min_size_mb))
+    return(invisible(NULL))
+  }
+
+  cat(sprintf("Found %d %s file(s) < %.1f MB — redownloading:\n",
+              length(small_idx), eov, min_size_mb))
+
+  for (i in small_idx) {
+    date_str <- regmatches(files[i], regexpr("\\d{4}-\\d{2}-\\d{2}", files[i]))
+    date_val <- as.Date(date_str)
+    cat(sprintf("  %s (%.2f MB)\n", basename(files[i]), sizes_mb[i]))
+    render_ncdfs(
+      node = node, url = url, eov = eov, varname = varname,
+      dataset_ID = dataset_ID,
+      enddate = date_val, startdate = date_val,
+      timestep = timestep, nc_path = nc_path, bbox = bbox
+    )
+  }
+}
+
+
 # render SST timeseries function -----
 render_SST_timeseries = function(eov, eov_unit,
                                  deploy_lons, interval, sst_thresh,
@@ -63,6 +93,17 @@ render_ncdfs(
   bbox <- tibble(ymin=20, ymax=60,xmin=-180, xmax=-110)
 )
 
+redownload_small_ncdfs(
+  nc_path    = "/Users/briscoedk/dbriscoe@stanford.edu - Google Drive/My Drive/ncdf/deploy_reports",
+  eov        = "sst",
+  varname    = "CRW_SST",
+  node       = "pacioos",
+  url        = "https://pae-paha.pacioos.hawaii.edu/erddap/griddap/",
+  dataset_ID = "dhw_5km",
+  timestep   = "day",
+  bbox       = tibble(ymin=20, ymax=60, xmin=-180, xmax=-110)
+)
+
 # get ssta daily
 render_ncdfs(
   node = "pacioos",
@@ -71,8 +112,8 @@ render_ncdfs(
   varname = "CRW_SSTANOMALY",
   dataset_ID = "dhw_5km",
   enddate <- Sys.Date() - 2,
-  # startdate <- Sys.Date() - (3+14),#"2023-07-10",  ## JUST PULL MOST RECENT 2 dailys for SSTA map (for now) + covering last 2 weeks, just in case automator didn't run 
-  startdate <- Sys.Date() - (3+60),#"2023-07-10",  ## JUST PULL MOST RECENT 2 dailys for SSTA map (for now) + covering last 2 weeks, just in case automator didn't run 
+  # startdate <- Sys.Date() - (3+14),#"2023-07-10",  ## JUST PULL MOST RECENT 2 dailys for SSTA map (for now) + covering last 2 weeks, just in case automator didn't run
+  startdate <- Sys.Date() - (3+60),#"2023-07-10",  ## JUST PULL MOST RECENT 2 dailys for SSTA map (for now) + covering last 2 weeks, just in case automator didn't run
   timestep = "day",
   nc_path = "/Users/briscoedk/dbriscoe@stanford.edu - Google Drive/My Drive/ncdf/npac",
   bbox <- dplyr::tibble(ymin=20, ymax=50,xmin=-180, xmax=-110)
@@ -90,6 +131,17 @@ render_ncdfs(
   timestep = "day",
   nc_path = "/Users/briscoedk/dbriscoe@stanford.edu - Google Drive/My Drive/ncdf/npac",
   bbox <- dplyr::tibble(ymin=20, ymax=50,xmin=-180, xmax=-110)
+)
+
+redownload_small_ncdfs(
+  nc_path    = "/Users/briscoedk/dbriscoe@stanford.edu - Google Drive/My Drive/ncdf/npac",
+  eov        = "ssta",
+  varname    = "CRW_SSTANOMALY",
+  node       = "pacioos",
+  url        = "https://pae-paha.pacioos.hawaii.edu/erddap/griddap/",
+  dataset_ID = "dhw_5km",
+  timestep   = "day",
+  bbox       = dplyr::tibble(ymin=20, ymax=50, xmin=-180, xmax=-110)
 )
 
 # 
