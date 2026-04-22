@@ -13,12 +13,11 @@ render_ncdfs = function(node, url, eov, varname,
                         nc_path, bbox) {
   rmarkdown::render(
     here::here("code","01_get_ncdf.Rmd"),
-    # "code/01_get_ncdf.Rmd",
     params = list(node = node, url = url, eov=eov, varname=varname,
                   dataset_ID = dataset_ID, enddate = enddate, startdate = startdate,
                   nc_path = nc_path),
-    # output_file = str_c('STRETCH_SST_report_DBriscoe_', (lubridate::today()-1), '.html'),
-    envir = parent.frame()
+    envir = parent.frame(),
+    quiet = TRUE
   )
 }
 
@@ -66,14 +65,12 @@ render_SST_timeseries = function(eov, eov_unit,
     # here::here("code","02_plot_SST_ts_with_18C_isotherm_cohort2_actual_route_w_ssta.Rmd"),
     # here::here("code","03_plot_SST_ts_with_18C_isotherm_pre_cohort3_release_w_ssta.Rmd"),
     here::here("code","03_plot_SST_ts_with_18C_isotherm_post_cohort3_release_w_ssta.Rmd"),
-    
-    # "code/02_plot_SST_ts.Rmd",
     output_file = here::here("docs","index.html"),
     params = list(eov=eov, eov_unit=eov_unit,
                   deploy_lons = deploy_lons, interval = interval, sst_thresh = sst_thresh,
-                  # enddate = enddate, startdate = startdate,
                   nc_path = nc_path),
-    envir = parent.frame()
+    envir = parent.frame(),
+    quiet = TRUE
   )
 }
 
