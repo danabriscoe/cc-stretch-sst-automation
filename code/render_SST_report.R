@@ -25,7 +25,7 @@ render_ncdfs = function(node, url, eov, varname,
 # check for small (incomplete) ncdf files and redownload -----
 redownload_small_ncdfs = function(nc_path, eov, varname, node, url,
                                    dataset_ID, timestep, bbox,
-                                   min_size_mb = 6.8) {
+                                   min_size_mb = 6.7) {
   files     <- list.files(nc_path, pattern = paste0("^", eov, "_"), full.names = TRUE)
   sizes_mb  <- file.info(files)$size / 1e6
   small_idx <- which(sizes_mb < min_size_mb)
