@@ -33,8 +33,8 @@ render_SST_timeseries = function(eov, eov_unit,
     # "../code/02_plot_SST_ts_with_18C_isotherm_post_release.Rmd",
     # here::here("code","02_plot_SST_ts_with_18C_isotherm_pre_cohort2_release.Rmd"),
     # here::here("code","02_plot_SST_ts_with_18C_isotherm_cohort2_actual_route.Rmd"),
-    here::here("code","02_plot_SST_ts_with_18C_isotherm_cohort2_actual_route_w_ssta.Rmd"),
-    # here::here("code","03_plot_SST_ts_with_18C_isotherm_pre_cohort3_release_w_ssta.Rmd"),
+    # here::here("code","02_plot_SST_ts_with_18C_isotherm_cohort2_actual_route_w_ssta.Rmd"),
+    here::here("code","03_plot_SST_ts_with_18C_isotherm_pre_cohort3_release_w_ssta.Rmd"),
     # here::here("code","03_plot_SST_ts_with_18C_isotherm_post_cohort3_release_w_ssta.Rmd"),
     
     # "code/02_plot_SST_ts.Rmd",
@@ -126,69 +126,20 @@ render_SST_timeseries(
 # push(repo, "origin", "refs/heads/main")
 
 
-library(gert)
-library(tidyverse)
+repo_root  <- trimws(system2("/usr/bin/git", c("rev-parse", "--show-toplevel"), stdout = TRUE))
+commit_msg <- paste0("Update SST report ", format(Sys.time(), "%Y%m%d_%H%M%S"))
+cat("Repo root:", repo_root, "\n")
 
-# Stage the rendered file
-# git_add(here::here("docs/index.html"))
-# git_add(here::here("docs/index.html"))
-library(fs)
-# get repo root
-repo_root <- gert::git_info()$path
+git_status <- trimws(system2("/usr/bin/git", c("-C", repo_root, "status", "--porcelain", "docs/index.html"), stdout = TRUE))
+cat("Git status:", git_status, "\n")
 
-# get relative path for staging
-rel_path <- fs::path_rel(
-  here::here("docs/index.html"),  # absolute path
-  start = repo_root
-)
-
-# stage the file
-# git_add(rel_path)
-
-gert::git_add(rel_path)
-
-
-# # status <- gert::git_status()
-# # to_stage <- status$file[status$status == "modified" & status$staged == FALSE]
-# # if (length(to_stage)) gert::git_add(to_stage)
-# 
-# 
-# # # Check which files are staged
-# # staged <- git_status(staged = TRUE)
-# # print(staged)
-# # 
-# # # # Only commit if something is staged
-# # # if (nrow(staged) > 0) {
-# #   commit_dt <- gsub("-", " ", Sys.time()) %>% gsub(":", " ", .)
-# #   git_commit(message = str_c("test commit ", commit_dt))
-# #   git_push(remote = "origin", refspec = "refs/heads/main")
-# # # } else {
-# # #   message("⚠️ No staged changes to commit.")
-# # # }
-# 
-# 
-# # Create a commit with current date/time
-# commit_dt <- gsub("-", " ", Sys.time()) %>% gsub(":", " ", .)
-# git_commit(message = str_c("test commit ", commit_dt))
-# 
-# # Push to origin/main
-# git_push(remote = "origin", refspec = "refs/heads/main")
-
-
-## added this now works ---
-# Check what's currently staged
-status <- git_status()
-staged_files <- status[status$staged == TRUE, ]
-print("Currently staged files:")
-print(staged_files)
-
-if (nrow(staged_files) > 0) {
-  commit_dt <- format(Sys.time(), "%Y%m%d_%H%M%S")
-  git_commit(message = paste("Update SST report", commit_dt))
-  git_push(remote = "origin", refspec = "refs/heads/main")
-  cat("Successfully committed and pushed\n")
+if (length(git_status) > 0) {
+  add_rc    <- system(sprintf('/usr/bin/git -C "%s" add docs/index.html', repo_root))
+  commit_rc <- system(sprintf('/usr/bin/git -C "%s" commit -m "%s"', repo_root, commit_msg))
+  push_rc   <- system(sprintf('/usr/bin/git -C "%s" push origin main', repo_root))
+  cat(sprintf("git add: %d | git commit: %d | git push: %d\n", add_rc, commit_rc, push_rc))
 } else {
-  cat("No staged files found\n")
+  cat("No changes to docs/index.html — nothing to push\n")
 }
 
 
