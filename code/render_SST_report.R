@@ -16,7 +16,7 @@ render_ncdfs = function(node, url, eov, varname,
     params = list(node = node, url = url, eov=eov, varname=varname,
                   dataset_ID = dataset_ID, enddate = enddate, startdate = startdate,
                   nc_path = nc_path),
-    envir = parent.frame(),
+    envir = new.env(parent = globalenv()),
     quiet = TRUE
   )
 }
@@ -69,7 +69,7 @@ render_SST_timeseries = function(eov, eov_unit,
     params = list(eov=eov, eov_unit=eov_unit,
                   deploy_lons = deploy_lons, interval = interval, sst_thresh = sst_thresh,
                   nc_path = nc_path),
-    envir = parent.frame(),
+    envir = new.env(parent = globalenv()),
     quiet = TRUE
   )
 }
