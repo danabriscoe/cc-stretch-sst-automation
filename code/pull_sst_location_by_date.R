@@ -32,7 +32,8 @@ print(str_c('most recent ncdf - ', ncs[length(ncs)]))
 nc_file <-ncs[length(ncs)]
 
 # nc_file <- ncs[grepl('2024-06-11',ncs)]
-nc_file <- ncs[grepl('2024-07-07',ncs)]
+# nc_file <- ncs[grepl('2024-07-07',ncs)]
+nc_file <- ncs[grepl('2025-07-10',ncs)]
 
 # Load NetCDF as a SpatRaster (specify variable if needed)
 r <- rast(nc_file)  # Loads all layers/variables
@@ -49,6 +50,10 @@ lat <- 38.56
 
 lon <- -147.2858
 lat <- 39.49312
+
+lon <- -146.0617 
+lat <- 39.315
+# 39.31 °N 146.07 °W
 
 
 # Extract value at specified location
