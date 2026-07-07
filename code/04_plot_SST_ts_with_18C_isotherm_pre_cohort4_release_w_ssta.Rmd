@@ -902,7 +902,8 @@ map <- map %>%
   ) %>%
 
   # Hide the 2023, 2024, and 2025 routes by default:
-  hideGroup(c("2023 Route", "2024 Route", "2025 Route"))
+  # hideGroup(c("2023 Route", "2024 Route", "2025 Route"))
+   hideGroup(c("2023 Route", "2024 Route"))
   
 # Add SST legend separately, positioned slightly below layer controls by default
 map <- map %>% addLegend(
