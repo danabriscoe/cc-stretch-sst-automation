@@ -33,7 +33,8 @@ nc_file <-ncs[length(ncs)]
 
 # nc_file <- ncs[grepl('2024-06-11',ncs)]
 # nc_file <- ncs[grepl('2024-07-07',ncs)]
-nc_file <- ncs[grepl('2025-07-10',ncs)]
+# nc_file <- ncs[grepl('2025-07-10',ncs)]
+nc_file <- ncs[grepl('2026-07-04',ncs)]
 
 # Load NetCDF as a SpatRaster (specify variable if needed)
 r <- rast(nc_file)  # Loads all layers/variables
@@ -45,16 +46,30 @@ print(names(r))
 print(r)
 
 ## Define the target coordinates (longitude and latitude)
-lon <- -148.5  # or 235.0 if in 0–360° format
-lat <- 38.56
+# lon <- -148.5  # or 235.0 if in 0–360° format
+# lat <- 38.56
+# 
+# lon <- -147.2858
+# lat <- 39.49312
+# 
+# lon <- -146.0617 
+# lat <- 39.315
+# # 39.31 °N 146.07 °W
 
-lon <- -147.2858
-lat <- 39.49312
+lon <- -150 
+lat <- 40.27333
+# 40.27333 °N 150 °W
 
-lon <- -146.0617 
-lat <- 39.315
-# 39.31 °N 146.07 °W
+# CRW_SST
+# 1   18.73
 
+
+lon <- -143.7467 
+lat <- 38.39167
+# 38.39167 °N 143.7467 °W
+
+# CRW_SST
+# 1   19.96
 
 # Extract value at specified location
 value <- terra::extract(r, cbind(lon, lat))
