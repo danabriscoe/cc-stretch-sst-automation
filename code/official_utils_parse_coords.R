@@ -287,6 +287,194 @@ make360(-148.1507)
 
 
 
+#### ---- COHORT 4 -----------
+# ## Poss Release Location ---- 
+# lat = c("39° 18.9") #39° 29.587
+# long = c("146° 03.7") #147° 17.146
+# parzer::parse_lon_lat(lon = long, lat = lat)
+
+
+# ## Poss Release Location ---- upd 1
+lat = c("40° 16.4") #40°16.4′N, 
+long = c("150° 00.0") #150°00.0′E
+parzer::parse_lon_lat(lon = long, lat = lat)
+
+150 40.27333
+
+# ## Poss Release Location ---- upd 2
+lat = c("38° 23.5") #38°23.5′N, 
+long = c("143° 44.8") #143°44.8′E
+parzer::parse_lon_lat(lon = long, lat = lat)
+
+143.7467 38.39167
+
+
+## 2 july 2026 ---- yokohama
+lat = c("35° 27.3916") #35°27.3916'N, 
+long = c("139° 40.8324") #139゜40.8324'E
+parzer::parse_lon_lat(lon = long, lat = lat)
+
+# 139.6805 35.45653
+
+
+## 2 july 2026 ---- 
+lat = c("35° 27.1822") #35°27.1822'N, 
+long = c("139° 40.8764") #139゜40.8764'E
+parzer::parse_lon_lat(lon = long, lat = lat)
+
+# 139.6813 35.45304
+
+
+## 3 july 2026 ---- 
+lat = c("36° 10.4402") #36°10.4402'N, 
+long = c("143° 38.0953") #143゜38.0953'E
+parzer::parse_lon_lat(lon = long, lat = lat)
+
+# 143.6349 36.174
+
+
+## 3 july 2026 ---- 
+lat = c("37° 26.9978") #37°26.9978'N, 
+long = c("147° 01.6208") #147゜01.6208'E
+parzer::parse_lon_lat(lon = long, lat = lat)
+
+# 147.027 37.44996
+
+
+## 4 july 2026 ---- 
+lat = c("38° 57.3696") #38°57.3696'N, 
+long = c("151° 34.8100") #151゜34.8100'E
+parzer::parse_lon_lat(lon = long, lat = lat)
+
+# 151.5802 38.95616
+
+
+## 4 july 2026 ---- 
+lat = c("39° 54.4630") #39°54.4630'N, 
+long = c("155° 08.6129") #155゜08.6129'E
+parzer::parse_lon_lat(lon = long, lat = lat)
+
+# 155.1435 39.90772
+
+## 5 july 2026 ---- 
+lat = c("41° 08.7417") #41°08.7417'N, 
+long = c("159° 54.0825") #159゜54.0825'E
+parzer::parse_lon_lat(lon = long, lat = lat)
+
+# 159.9014 41.1457
+
+
+
+## 5 july 2026 ---- 
+lat = c("41° 47.4103") #41°47.4103'N,
+long = c("163° 43.9002") # 163゜43.9002'E
+parzer::parse_lon_lat(lon = long, lat = lat)
+
+# 163.7317 41.79017
+
+
+
+## 6 july 2026 ---- 
+lat = c("42° 37.4062") #42°37.4062'N, 
+long = c("168° 54.7496") # 168゜54.7496'E
+parzer::parse_lon_lat(lon = long, lat = lat)
+
+# 168.9125 42.62344
+
+
+## 6 july 2026 ---- 
+lat = c("43° 01.2248") #43°01.2248'N, 
+long = c("172° 58.6875") # 172゜58.6875'E 
+parzer::parse_lon_lat(lon = long, lat = lat)
+
+# 172.9781 43.02041
+
+
+
+## 7 july 2026 ---- 
+lat = c("43° 26.4825") #43°26.4825'N, 
+long = c("178° 54.2252") # 178゜54.2252'E
+parzer::parse_lon_lat(lon = long, lat = lat)
+
+# 178.9038 43.44138
+
+
+## 7 july 2026 ---- 
+lat = c("43° 29.0565") #43°29.0565'N, 
+long = c("176° 54.2252") # 176゜51.7368'W
+parzer::parse_lon_lat(lon = long, lat = lat)
+
+# 176.9038 43.48427
+make360(-176.9038)
+# 183.0962
+
+
+
+## 7 july 2026 ---- dateline crossing - 7 July 2026 again
+lat = c("43° 21.9888") #43°21.9888'N, 
+long = c("171° 12.2731") # 171゜12.2731'W
+parzer::parse_lon_lat(lon = long, lat = lat)
+
+# 171.2046 43.36648
+make360(-171.2046)
+# 188.7954
+
+
+
+## 7 july 2026 ---- dateline crossing - 7 July 2026 again
+lat = c("43° 01.7796") #43°01.7796'N,
+long = c("166° 58.6694") # 166゜58.6694'W
+parzer::parse_lon_lat(lon = long, lat = lat)
+
+# 166.9778 43.02966
+make360(-166.9778)
+# 193.0222
+
+
+
+## 8 july 2026 ---- 
+lat = c("42° 24.1816") #42°24.1816'N, 
+long = c("161° 02.2944") # 161°02.2944'W
+parzer::parse_lon_lat(lon = long, lat = lat)
+
+# 161.0382 42.40303
+make360(-161.0382)
+# 198.9618
+
+
+## 8 july 2026 ---- 
+lat = c("41° 41.2952") #41°41.2952'N, 
+long = c("157° 00.3209") # 157°00.3209'W
+parzer::parse_lon_lat(lon = long, lat = lat)
+
+# 157.0053 41.68825
+make360(-157.0053)
+# 202.9947
+
+
+
+## 9 july 2026 ---- 
+lat = c("40° 39.4711") #40°39.4711'N, 
+long = c("151° 52.7249") # 151°52.7249'W
+parzer::parse_lon_lat(lon = long, lat = lat)
+
+# 151.8787 40.65785
+make360(-151.8787)
+# 208.1213
+
+
+## 9 july 2026 ---- COHORT 4 RELEASE LOCATION!!!
+lat = c("39° 59.2032") #39°59.2032'N, 
+long = c("149° 02.9923") # 149°02.9923'W
+parzer::parse_lon_lat(lon = long, lat = lat)
+
+# 149.0499 39.98672
+make360(-149.0499)
+# 210.9501
+
+
+
+
 #### ---------
 parzer::parse_lon_lat(lon = long, lat = lat)
 
