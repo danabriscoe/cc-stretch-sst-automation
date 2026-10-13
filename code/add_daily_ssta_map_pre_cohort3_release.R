@@ -97,7 +97,8 @@ cpal <- c(smooth_rainbow(length(seq(floor(limits[1]), ceiling(limits[2]), 1)), r
 # pal_rev <- colorNumeric(cpal[14:length(cpal)], values(enddate_ras), reverse = FALSE, na.color = "transparent")
 
 
-limits_ssta <- c(-5.5,6)
+# limits_ssta <- c(-5.5,6)
+limits_ssta <- c(-7.5,8)
 cbar_int <- 0.5
 cbar_title <- 'SSTA (°C)\n'
 
