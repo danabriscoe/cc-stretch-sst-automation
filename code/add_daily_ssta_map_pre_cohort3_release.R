@@ -119,7 +119,9 @@ library(RColorBrewer)
 # # Combine cool → white → warm
 # cpal_ssta_sym <- c(blues_ext, "white", reds_ext)
 
-n_side <- 10
+# n_side <- 10
+
+n_side <- 16 #14
 
 # Select lighter subset of each palette
 # reds_soft <- brewer.pal(9, "YlOrRd")[4:9]  # skip the darkest reds
@@ -148,7 +150,8 @@ cpal_ssta_sym <- c("#022C64",rev(blues_ext), "white", reds_ext, "#48090B")
 
 pal_ssta_centered <- colorNumeric(
   palette = cpal_ssta_sym,  # your diverging palette
-  domain = c(-6, 6),         # clamp domain
+  # domain = c(-6, 6),         # clamp domain
+  domain = c(-8, 8),         # clamp domain
   na.color = "transparent"
 )
 
@@ -196,7 +199,11 @@ if(params$add_sst_map){
       position = "topright",
       pal = pal_ssta_centered,
       # values = seq(-6, 6, 1),
-      values = seq(-5.5, 5.5, 1),
+      # values = seq(-5.5, 5.5, 1),
+      
+      # values = seq(-6.5, 6.5, 1),
+      values = seq(-8, 8, 1),
+      
       title = "SSTA (°C)",
       # labFormat = labelFormat(transform = function(x) sort(x, decreasing = TRUE))
       labFormat = labelFormat(transform = function(x) sort(x, decreasing = FALSE))
@@ -234,7 +241,11 @@ if(params$add_sst_map){
       position = "topright",
       pal = pal_ssta_centered,
       # values = seq(-6, 6, 1),  # use full range for consistency
-      values = seq(-5.5, 5.5, 1),
+      # values = seq(-5.5, 5.5, 1),
+      
+      # values = seq(-6.5, 6.5, 1),
+      values = seq(-8, 8, 1),
+      
       title = "SSTA (°C)",
       # labFormat = labelFormat(transform = function(x) sort(x, decreasing = TRUE))
       labFormat = labelFormat(transform = function(x) sort(x, decreasing = FALSE))
